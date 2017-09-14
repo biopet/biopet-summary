@@ -33,6 +33,11 @@ node('local') {
             slackSend(color: '#FFFF00', message: "${currentBuild.result}: Job '${env.JOB_NAME} #${env.BUILD_NUMBER}' (<${env.BUILD_URL}|Open>)", channel: '#biopet-bot', teamDomain: 'lumc', tokenCredentialId: 'lumc')
         }
     } catch (e) {
+
+        stage('Results') {
+            junit '**/test-output/junitreports/*.xml'
+        }
+
         if (currentBuild.result == null || "FAILED" == currentBuild.result) {
             currentBuild.result = "FAILED"
         }
