@@ -84,7 +84,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(db.getSampleTags(sampleId), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
 
     val sampleId2 = Await.result(
-      db.createSample("test_sample2", runId, Some("""{"test": "test"}""")),
+      db.createOrUpdateSample("test_sample2", runId, Some("""{"test": "test"}""")),
       Duration.Inf)
     Await.result(db.getSampleTags(sampleId2), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
     Await.result(db.getSamples(), Duration.Inf) shouldBe Seq(
@@ -116,13 +116,13 @@ class SummaryDbTest extends TestNGSuite with Matchers {
       libraryId)
     Await.result(db.getLibraryTags(sampleId), Duration.Inf) shouldBe None
 
-    val sampleId2 = Await.result(
-      db.createLibrary("test_lib2", runId, sampleId, Some("""{"test": "test"}""")),
+    val libraryId2 = Await.result(
+      db.createOrUpdateLibrary("test_lib2", runId, sampleId, Some("""{"test": "test"}""")),
       Duration.Inf)
-    Await.result(db.getLibraryTags(sampleId2), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
+    Await.result(db.getLibraryTags(libraryId2), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
     Await.result(db.getLibraries(), Duration.Inf) shouldBe Seq(
       Schema.Library(sampleId, "test_lib", runId, sampleId, None),
-      Schema.Library(sampleId2, "test_lib2", runId, sampleId, Some("""{"test": "test"}""")))
+      Schema.Library(libraryId2, "test_lib2", runId, sampleId, Some("""{"test": "test"}""")))
 
     db.close()
   }
