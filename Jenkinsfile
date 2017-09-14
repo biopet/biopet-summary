@@ -8,11 +8,8 @@ node('local') {
             tool 'sbt 0.13.15'
         }
 
-        timeout(45) {
-            stage('Checkout') {
-                checkout scm
-                //sh 'git submodule update --init --recursive'
-            }
+        stage('Checkout') {
+            checkout scm
         }
 
         stage('Build') {
@@ -41,8 +38,10 @@ node('local') {
 
         if (currentBuild.result == null || "FAILED" == currentBuild.result) {
             currentBuild.result = "FAILED"
+            slackSend(color: '#FF0000', message: "${currentBuild.result}: Job '${env.JOB_NAME} #${env.BUILD_NUMBER}' (<${env.BUILD_URL}|Open>)", channel: '#biopet-bot', teamDomain: 'lumc', tokenCredentialId: 'lumc')
+        } else {
+            slackSend(color: '#FFFF00', message: "${currentBuild.result}: Job '${env.JOB_NAME} #${env.BUILD_NUMBER}' (<${env.BUILD_URL}|Open>)", channel: '#biopet-bot', teamDomain: 'lumc', tokenCredentialId: 'lumc')
         }
-        slackSend(color: '#FF0000', message: "${currentBuild.result}: Job '${env.JOB_NAME} #${env.BUILD_NUMBER}' (<${env.BUILD_URL}|Open>)", channel: '#biopet-bot', teamDomain: 'lumc', tokenCredentialId: 'lumc')
 
         throw e
     }
