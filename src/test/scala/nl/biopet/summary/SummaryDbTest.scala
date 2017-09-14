@@ -21,9 +21,9 @@ import org.scalatest.Matchers
 import org.scalatest.testng.TestNGSuite
 import org.testng.annotations.Test
 import play.api.libs.json.{JsDefined, JsString, Json}
-
 import nl.biopet.summary.SummaryDb._
 import nl.biopet.summary.Implicts._
+import nl.biopet.summary.Schema.Stat
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -357,7 +357,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        """{"content": "test3" }"""),
                  Duration.Inf)
     Await.result(db.getStat(runId, "test_pipeline", "test_module", "test_sample", "test_library"),
-                 Duration.Inf) shouldBe Some(Json.toJson(Map("content" -> "test3")))
+      Duration.Inf) shouldBe Some(Json.toJson(Map("content" -> "test3")))
+    Await.result(db.getStats(Some(runId), Some("test_pipeline"), Some("test_module"), mustHaveSample = true, mustHaveLibrary = true),
+      Duration.Inf) shouldBe Seq(Stat(0,0,Some(0),Some(0),Some(0),"""{"content": "test3" }"""))
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 2
 
     db.close()
