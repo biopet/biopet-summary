@@ -11,7 +11,8 @@ import utils.SummaryDb.Implicts._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
-class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extends SummaryDb {
+class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
+    extends SummaryDb {
 
   /** This method will create all tables */
   def createTables(): Unit = {
@@ -32,20 +33,31 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                 commitHash: String,
                 creationDate: Date): Future[Int] = {
     val id = Await.result(db.run(runs.size.result), Duration.Inf)
-    db.run(runs.forceInsert(Run(id, runName, outputDir, version, commitHash, creationDate)))
+    db.run(
+        runs.forceInsert(
+          Run(id, runName, outputDir, version, commitHash, creationDate)))
       .map(_ => id)
   }
 
   /** This creates a new sample and return the sampleId */
-  def createSample(name: String, runId: Int, tags: Option[String] = None): Future[Int] = {
+  def createSample(name: String,
+                   runId: Int,
+                   tags: Option[String] = None): Future[Int] = {
     val id = Await.result(db.run(samples.size.result), Duration.Inf)
     db.run(samples.forceInsert(Sample(id, name, runId, tags))).map(_ => id)
   }
 
-  def createOrUpdateSample(name: String, runId: Int, tags: Option[String] = None): Future[Int] = {
+  def createOrUpdateSample(name: String,
+                           runId: Int,
+                           tags: Option[String] = None): Future[Int] = {
     getSampleId(runId, name).flatMap {
       case Some(id: Int) =>
-        db.run(samples.filter(_.name === name).filter(_.id === id).map(_.tags).update(tags))
+        db.run(
+            samples
+              .filter(_.name === name)
+              .filter(_.id === id)
+              .map(_.tags)
+              .update(tags))
           .map(_ => id)
       case _ => createSample(name, runId, tags)
     }
@@ -57,7 +69,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                     sampleId: Int,
                     tags: Option[String] = None): Future[Int] = {
     val id = Await.result(db.run(libraries.size.result), Duration.Inf)
-    db.run(libraries.forceInsert(Library(id, name, runId, sampleId, tags))).map(_ => id)
+    db.run(libraries.forceInsert(Library(id, name, runId, sampleId, tags)))
+      .map(_ => id)
   }
 
   def createOrUpdateLibrary(name: String,
@@ -115,7 +128,9 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                  sampleId: Option[Int] = None,
                  libId: Option[Int] = None,
                  content: String): Future[Int] = {
-    db.run(stats.forceInsert(Stat(runId, pipelineId, moduleId, sampleId, libId, content)))
+    db.run(
+      stats.forceInsert(
+        Stat(runId, pipelineId, moduleId, sampleId, libId, content)))
   }
 
   /** This create or update a stat */
@@ -133,7 +148,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
       Some(libId.map(LibraryId).getOrElse(NoLibrary))
     )
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
-    if (r == 0) createStat(runId, pipelineId, moduleId, sampleId, libId, content)
+    if (r == 0)
+      createStat(runId, pipelineId, moduleId, sampleId, libId, content)
     else db.run(filter.map(_.content).update(content))
   }
 
@@ -144,7 +160,9 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                     sampleId: Option[Int] = None,
                     libId: Option[Int] = None,
                     content: String): Future[Int] = {
-    db.run(settings.forceInsert(Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
+    db.run(
+      settings.forceInsert(
+        Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
   }
 
   /** This method creates or update a setting. */
@@ -160,8 +178,12 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                                 sampleId.map(SampleId),
                                 libId.map(LibraryId))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
-    if (r == 0) createSetting(runId, pipelineId, moduleId, sampleId, libId, content)
-    else db.run(filter.update(Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
+    if (r == 0)
+      createSetting(runId, pipelineId, moduleId, sampleId, libId, content)
+    else
+      db.run(
+        filter.update(
+          Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
   }
 
   /** Creates a file. This method will raise exception if it already exist */
@@ -177,7 +199,16 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                  size: Long): Future[Int] = {
     db.run(
       files.forceInsert(
-        Schema.File(runId, pipelineId, moduleId, sampleId, libId, key, path, md5, link, size)))
+        Schema.File(runId,
+                    pipelineId,
+                    moduleId,
+                    sampleId,
+                    libId,
+                    key,
+                    path,
+                    md5,
+                    link,
+                    size)))
   }
 
   /** Create or update a File */
@@ -199,11 +230,29 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                              Some(key))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
-      createFile(runId, pipelineId, moduleId, sampleId, libId, key, path, md5, link, size)
+      createFile(runId,
+                 pipelineId,
+                 moduleId,
+                 sampleId,
+                 libId,
+                 key,
+                 path,
+                 md5,
+                 link,
+                 size)
     else
       db.run(
         filter.update(
-          Schema.File(runId, pipelineId, moduleId, sampleId, libId, key, path, md5, link, size)))
+          Schema.File(runId,
+                      pipelineId,
+                      moduleId,
+                      sampleId,
+                      libId,
+                      key,
+                      path,
+                      md5,
+                      link,
+                      size)))
   }
 
   /** Creates a exeutable. This method will raise expection if it already exist */
@@ -217,7 +266,14 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                        jarPath: Option[String] = None): Future[Int] = {
     db.run(
       executables.forceInsert(
-        Executable(runId, toolName, version, path, javaVersion, exeMd5, javaMd5, jarPath)))
+        Executable(runId,
+                   toolName,
+                   version,
+                   path,
+                   javaVersion,
+                   exeMd5,
+                   javaMd5,
+                   jarPath)))
   }
 
   /** Create or update a [[Executable]] */
@@ -231,11 +287,19 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext) extend
                                jarPath: Option[String] = None): Future[Int] = {
     val filter = executablesFilter(Some(runId), Some(toolName))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
-    if (r == 0) createExecutable(runId, toolName, version, javaVersion, exeMd5, javaMd5)
+    if (r == 0)
+      createExecutable(runId, toolName, version, javaVersion, exeMd5, javaMd5)
     else
       db.run(
         filter.update(
-          Executable(runId, toolName, version, path, javaVersion, exeMd5, javaMd5, jarPath)))
+          Executable(runId,
+                     toolName,
+                     version,
+                     path,
+                     javaVersion,
+                     exeMd5,
+                     javaMd5,
+                     jarPath)))
   }
 
 }

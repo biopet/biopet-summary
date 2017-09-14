@@ -57,7 +57,11 @@ object Schema {
   }
   val samples = TableQuery[Samples]
 
-  case class Library(id: Int, name: String, runId: Int, sampleId: Int, tags: Option[String])
+  case class Library(id: Int,
+                     name: String,
+                     runId: Int,
+                     sampleId: Int,
+                     tags: Option[String])
   class Libraries(tag: Tag) extends Table[Library](tag, "Libraries") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
@@ -65,7 +69,8 @@ object Schema {
     def sampleId = column[Int]("sampleId")
     def tags = column[Option[String]]("tags")
 
-    def * = (id, name, runId, sampleId, tags) <> (Library.tupled, Library.unapply)
+    def * =
+      (id, name, runId, sampleId, tags) <> (Library.tupled, Library.unapply)
 
     def run = foreignKey("library_run_fk", runId, runs)(_.id)
     def sample = foreignKey("library_sample_fk", sampleId, samples)(_.id)
@@ -94,7 +99,8 @@ object Schema {
     def * = (id, name, pipelineId) <> (Module.tupled, Module.unapply)
 
     def idx = index("idx_module_names", (name, pipelineId), unique = true)
-    def pipeline = foreignKey("module_pipeline_fk", pipelineId, pipelines)(_.id)
+    def pipeline =
+      foreignKey("module_pipeline_fk", pipelineId, pipelines)(_.id)
   }
   val modules = TableQuery[Modules]
 
@@ -141,7 +147,8 @@ object Schema {
       (runId, pipelineId, moduleId, sampleId, libraryId, content) <> (Setting.tupled, Setting.unapply)
 
     def run = foreignKey("settings_run_fk", runId, runs)(_.id)
-    def pipeline = foreignKey("settings_pipeline_fk", pipelineId, pipelines)(_.id)
+    def pipeline =
+      foreignKey("settings_pipeline_fk", pipelineId, pipelines)(_.id)
     def module = foreignKey("settings_module_fk", moduleId, modules)(_.id)
     def sample = foreignKey("settings_sample_fk", sampleId, samples)(_.id)
     def library = foreignKey("settings_library_fk", libraryId, libraries)(_.id)
@@ -165,16 +172,27 @@ object Schema {
     def sampleId = column[Option[Int]]("sampleId")
     def libraryId = column[Option[Int]]("libraryId")
     def key = column[String]("key")
-    def path = column[String]("path") // This should be relative to the outputDir
+    def path =
+      column[String]("path") // This should be relative to the outputDir
     def md5 = column[String]("md5")
     def link = column[Boolean]("link", O.Default(false))
     def size = column[Long]("size")
 
     def * =
-      (runId, pipelineId, moduleId, sampleId, libraryId, key, path, md5, link, size) <> (File.tupled, File.unapply)
+      (runId,
+       pipelineId,
+       moduleId,
+       sampleId,
+       libraryId,
+       key,
+       path,
+       md5,
+       link,
+       size) <> (File.tupled, File.unapply)
 
     def idx =
-      index("idx_files", (runId, pipelineId, moduleId, sampleId, libraryId, key))
+      index("idx_files",
+            (runId, pipelineId, moduleId, sampleId, libraryId, key))
 
     def run = foreignKey("files_run_fk", runId, runs)(_.id)
     def pipeline = foreignKey("files_pipeline_fk", pipelineId, pipelines)(_.id)
