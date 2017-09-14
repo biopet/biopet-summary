@@ -403,8 +403,10 @@ trait SummaryDb extends Closeable with Logging {
       pipeline: Option[PipelineQuery] = None,
       module: Option[ModuleQuery] = None,
       sample: Option[SampleQuery] = None,
-      library: Option[LibraryQuery] = None): Future[Seq[Setting]] = {
-    db.run(settingsFilter(runId, pipeline, module, sample, library).result)
+      library: Option[LibraryQuery] = None,
+      mustHaveSample: Boolean = false,
+      mustHaveLibrary: Boolean = false): Future[Seq[Setting]] = {
+    db.run(settingsFilter(runId, pipeline, module, sample, library, mustHaveSample, mustHaveLibrary).result)
   }
 
   /** Return a specific setting as [[Map[String, Any]] */
