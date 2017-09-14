@@ -19,7 +19,7 @@ node('local') {
         }
 
         stage('Results') {
-            junit '**/target/test-reports/*.xml'
+            junit '**/test-output/junitreports/*.xml'
         }
 
         if (currentBuild.result == null || "SUCCESS" == currentBuild.result) {
