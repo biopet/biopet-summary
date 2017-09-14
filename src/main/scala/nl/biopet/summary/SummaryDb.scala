@@ -610,7 +610,8 @@ object SummaryDb {
   }
 
   /** This will open a sqlite database and create tables when the database did not exist yet */
-  def openH2Summary(file: File): SummaryDbWrite = {
+  def openH2Summary(file: File)(
+      implicit ec: ExecutionContext): SummaryDbWrite = {
     if (!summaryConnections.contains(file)) {
       val exist = file.exists()
       val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",

@@ -1,5 +1,5 @@
 organization := "nl.biopet"
-name := "summary"
+name := "biopet-summary"
 
 version := "0.1-SNAPSHOT"
 
@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-nop" % "1.6.4"
 )
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.20.0"
-libraryDependencies += "com.typesafe.play" % "play_2.11" % "2.6.3"
+libraryDependencies += "com.typesafe.play" % "play-json_2.11" % "2.6.3"
 libraryDependencies += "org.yaml" % "snakeyaml" % "1.18"
 libraryDependencies += "log4j" % "log4j" % "1.2.17"
 libraryDependencies += "com.h2database" % "h2" % "1.4.196"
