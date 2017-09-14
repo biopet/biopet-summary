@@ -187,7 +187,7 @@ trait SummaryDb extends Closeable {
                   library: Option[LibraryQuery] = None,
                   mustHaveSample: Boolean = false,
                   mustHaveLibrary: Boolean = false)
-    : slick.driver.H2Driver.api.Query[Stats, Stat, Seq] = {
+    : slick.jdbc.H2Profile.api.Query[Stats, Stat, Seq] = {
     var f: Query[Stats, Stats#TableElementType, Seq] = stats
     runId.foreach(r => f = f.filter(_.runId === r))
     f = pipeline match {
@@ -345,7 +345,7 @@ trait SummaryDb extends Closeable {
                      library: Option[LibraryQuery] = None,
                      mustHaveSample: Boolean = false,
                      mustHaveLibrary: Boolean = false)
-    : slick.driver.H2Driver.api.Query[Settings, Setting, Seq] = {
+    : Query[Settings, Setting, Seq] = {
     var f: Query[Settings, Settings#TableElementType, Seq] = settings
     runId.foreach(r => f = f.filter(_.runId === r))
     f = pipeline match {
@@ -482,7 +482,7 @@ trait SummaryDb extends Closeable {
                   moduleName: Option[Option[String]] = None,
                   sampleName: Option[Option[String]] = None,
                   libraryName: Option[Option[String]] = None)
-    : slick.driver.H2Driver.api.Query[Files, Files#TableElementType, Seq] = {
+    : Query[Files, Files#TableElementType, Seq] = {
     var f: Query[Files, Files#TableElementType, Seq] = files
     runId.foreach(r => f = f.filter(_.runId === r))
     key.foreach(r => f = f.filter(_.key === r))
@@ -557,7 +557,7 @@ trait SummaryDb extends Closeable {
 
   /** Returns a [[Query]] for [[Executables]] */
   def executablesFilter(runId: Option[Int], toolName: Option[String])
-    : slick.driver.H2Driver.api.Query[Executables, Executable, Seq] = {
+    : Query[Executables, Executable, Seq] = {
     var q: Query[Executables, Executables#TableElementType, Seq] = executables
     runId.foreach(r => q = q.filter(_.runId === r))
     toolName.foreach(r => q = q.filter(_.toolName === r))

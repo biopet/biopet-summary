@@ -123,9 +123,9 @@ object Schema {
 
     def run = foreignKey("stats_run_fk", runId, runs)(_.id)
     def pipeline = foreignKey("stats_pipeline_fk", pipelineId, pipelines)(_.id)
-    def module = foreignKey("stats_module_fk", moduleId, modules)(_.id)
-    def sample = foreignKey("stats_sample_fk", sampleId, samples)(_.id)
-    def library = foreignKey("stats_library_fk", libraryId, libraries)(_.id)
+    def module = foreignKey("stats_module_fk", moduleId, modules)(_.id.?)
+    def sample = foreignKey("stats_sample_fk", sampleId, samples)(_.id.?)
+    def library = foreignKey("stats_library_fk", libraryId, libraries)(_.id.?)
   }
   val stats = TableQuery[Stats]
 
@@ -149,9 +149,9 @@ object Schema {
     def run = foreignKey("settings_run_fk", runId, runs)(_.id)
     def pipeline =
       foreignKey("settings_pipeline_fk", pipelineId, pipelines)(_.id)
-    def module = foreignKey("settings_module_fk", moduleId, modules)(_.id)
-    def sample = foreignKey("settings_sample_fk", sampleId, samples)(_.id)
-    def library = foreignKey("settings_library_fk", libraryId, libraries)(_.id)
+    def module = foreignKey("settings_module_fk", moduleId, modules)(_.id.?)
+    def sample = foreignKey("settings_sample_fk", sampleId, samples)(_.id.?)
+    def library = foreignKey("settings_library_fk", libraryId, libraries)(_.id.?)
   }
   val settings = TableQuery[Settings]
 
@@ -196,9 +196,9 @@ object Schema {
 
     def run = foreignKey("files_run_fk", runId, runs)(_.id)
     def pipeline = foreignKey("files_pipeline_fk", pipelineId, pipelines)(_.id)
-    def module = foreignKey("files_module_fk", moduleId, modules)(_.id)
-    def sample = foreignKey("files_sample_fk", sampleId, samples)(_.id)
-    def library = foreignKey("files_library_fk", libraryId, libraries)(_.id)
+    def module = foreignKey("files_module_fk", moduleId, modules)(_.id.?)
+    def sample = foreignKey("files_sample_fk", sampleId, samples)(_.id.?)
+    def library = foreignKey("files_library_fk", libraryId, libraries)(_.id.?)
 
   }
   val files = TableQuery[Files]

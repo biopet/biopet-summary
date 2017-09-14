@@ -53,7 +53,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.name shouldBe run1.name
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
-    val runId2 = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
     val runs2 = Await.result(db.getRuns(), Duration.Inf)
     runs2.size shouldBe 2
     runs2.map(_.name) shouldBe List("name", "name")
@@ -134,9 +134,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openSqliteSummary(dbFile)
     db.createTables()
 
-    val date = new Date(System.currentTimeMillis())
-
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
     Await.result(db.getPipelines(), Duration.Inf) shouldBe empty
     Await.result(db.getPipelineName(0), Duration.Inf) shouldBe None
     val pipelineId = Await.result(db.createPipeline("test"), Duration.Inf)
@@ -158,9 +155,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openSqliteSummary(dbFile)
     db.createTables()
 
-    val date = new Date(System.currentTimeMillis())
-
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("test"), Duration.Inf)
     Await.result(db.getModules(), Duration.Inf) shouldBe empty
     Await.result(db.getModuleName(pipelineId, 0), Duration.Inf) shouldBe None
@@ -185,9 +179,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
-    val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
-    val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("sample", runId, sampleId), Duration.Inf)
 
     Await.result(db.createOrUpdateSetting(runId, pipelineId, None, None, None, """{"content": "test" }"""),
                  Duration.Inf)
