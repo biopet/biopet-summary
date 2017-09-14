@@ -182,6 +182,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     Await.result(db.createOrUpdateSetting(runId, pipelineId, None, None, None, """{"content": "test" }"""),
                  Duration.Inf)
+    Await.result(db.getSetting(runId, pipelineId, 0, 0, 0), Duration.Inf) shouldBe None
     Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.createOrUpdateSetting(runId, pipelineId, None, None, None, """{"content": "test2" }"""),
@@ -582,7 +583,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val date = new Date(System.currentTimeMillis())
 
     val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
-    db.close()
 
     val readOnlyDb = SummaryDb.openReadOnlyH2Summary(dbFile)
 
@@ -594,7 +594,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
 
-    readOnlyDb.close()
+    SummaryDb.closeAll()
   }
 
 }
