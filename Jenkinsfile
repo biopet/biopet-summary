@@ -22,6 +22,7 @@ node('local') {
 
         stage('Results') {
             junit '**/test-output/junitreports/*.xml'
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'target/scala-2.11/scoverage-report/', reportFiles: 'index.html', reportName: 'Scoverage Report', reportTitles: ''])
         }
 
         if (currentBuild.result == null || "SUCCESS" == currentBuild.result) {
@@ -34,6 +35,7 @@ node('local') {
 
         stage('Results') {
             junit '**/test-output/junitreports/*.xml'
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'target/scala-2.11/scoverage-report/', reportFiles: 'index.html', reportName: 'Scoverage Report', reportTitles: ''])
         }
 
         if (currentBuild.result == null || "FAILED" == currentBuild.result) {
