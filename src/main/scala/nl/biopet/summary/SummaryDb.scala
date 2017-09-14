@@ -603,17 +603,11 @@ object SummaryDb {
   }
 
   /** This will open a sqlite database and create tables when the database did not exist yet */
-  def openSqliteSummary(file: File)(
+  def openH2Summary(file: File)(
       implicit ec: ExecutionContext): SummaryDbWrite = {
     if (!summaryConnections.contains(file)) {
-      val config: org.sqlite.SQLiteConfig = new org.sqlite.SQLiteConfig()
-      config.enforceForeignKeys(true)
-      config.setBusyTimeout("10000")
-      config.setSynchronous(org.sqlite.SQLiteConfig.SynchronousMode.FULL)
       val exist = file.exists()
       val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",
-                               //driver = "org.h2.JDBC",
-                               prop = config.toProperties,
                                executor =
                                  AsyncExecutor("single_thread", 1, 1000))
       val s = new SummaryDbWrite(db)
@@ -623,23 +617,15 @@ object SummaryDb {
     summaryConnections(file)
   }
 
-  def openReadOnlySqliteSummary(file: File)(
+  def openReadOnlyH2Summary(file: File)(
       implicit ec: ExecutionContext): SummaryDbReadOnly = {
     require(file.exists(), s"File does not exist: $file")
-    val config: org.sqlite.SQLiteConfig = new org.sqlite.SQLiteConfig()
-    config.enforceForeignKeys(true)
-    config.setBusyTimeout("10000")
-    config.setSynchronous(org.sqlite.SQLiteConfig.SynchronousMode.FULL)
-    config.setReadOnly(true)
-
     val asyncExecutor = new AsyncExecutor {
       override def executionContext: ExecutionContext = ec
       override def close(): Unit = {}
     }
 
-    val db = Database.forURL(s"jdbc:sqlite:${file.getAbsolutePath}",
-                             driver = "org.sqlite.JDBC",
-                             prop = config.toProperties,
+    val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",
                              executor = asyncExecutor)
     new SummaryDbReadOnly(db)
   }

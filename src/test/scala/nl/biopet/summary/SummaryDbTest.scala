@@ -39,7 +39,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testRuns(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val date = new Date(System.currentTimeMillis())
@@ -65,7 +65,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testSamples(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val date = new Date(System.currentTimeMillis())
@@ -98,7 +98,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testLibraries(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val date = new Date(System.currentTimeMillis())
@@ -131,7 +131,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testPipelines(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     Await.result(db.getPipelines(), Duration.Inf) shouldBe empty
@@ -152,7 +152,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testModules(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val pipelineId = Await.result(db.createPipeline("test"), Duration.Inf)
@@ -174,7 +174,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testSettings(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -195,7 +195,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testSettingKeys(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -235,7 +235,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testSettingsForSamples(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -272,7 +272,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testSettingsForLibraries(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -310,7 +310,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testStats(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(
@@ -355,7 +355,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testStatKeys(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -395,7 +395,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testStatsForSamples(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -432,7 +432,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testStatsForLibraries(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -470,7 +470,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testFiles(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(
@@ -558,7 +558,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   def testExecutable(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
-    val db = SummaryDb.openSqliteSummary(dbFile)
+    val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
@@ -570,6 +570,31 @@ class SummaryDbTest extends TestNGSuite with Matchers {
       "name",
       Some("test"))
     db.close()
+  }
+
+  @Test
+  def testReadOnly(): Unit = {
+    val dbFile = File.createTempFile("summary.", ".db")
+    dbFile.deleteOnExit()
+    val db = SummaryDb.openH2Summary(dbFile)
+    db.createTables()
+
+    val date = new Date(System.currentTimeMillis())
+
+    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    db.close()
+
+    val readOnlyDb = SummaryDb.openReadOnlyH2Summary(dbFile)
+
+    val run1 = Schema.Run(runId, "name", "dir", "version", "hash", date)
+    val runs = Await.result(readOnlyDb.getRuns(), Duration.Inf)
+    runs.size shouldBe 1
+    runs.head.id shouldBe runId
+    runs.head.name shouldBe run1.name
+    runs.head.outputDir shouldBe run1.outputDir
+    runs.head.commitHash shouldBe run1.commitHash
+
+    readOnlyDb.close()
   }
 
 }
