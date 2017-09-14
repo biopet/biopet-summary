@@ -179,9 +179,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   @Test
   def testSettings(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
-    dbFile.deleteOnExit()
+    dbFile.delete()
     val db = SummaryDb.openH2Summary(dbFile)
-    db.createTables()
+    dbFile.deleteOnExit()
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
