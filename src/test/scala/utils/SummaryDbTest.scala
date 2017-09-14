@@ -52,7 +52,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.name shouldBe run1.name
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
-    runs.head.creationDate.toLocalDate shouldBe run1.creationDate.toLocalDate
     val runId2 = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
     val runs2 = Await.result(db.getRuns(), Duration.Inf)
     runs2.size shouldBe 2
