@@ -19,6 +19,7 @@ import java.io.{Closeable, File}
 import nl.biopet.summary.Schema._
 import nl.biopet.summary.SummaryDb._
 import nl.biopet.summary.Implicts._
+import nl.biopet.utils.Logging
 import play.api.libs.json.{JsLookupResult, JsValue, Json}
 import slick.jdbc.H2Profile.api._
 
@@ -31,13 +32,16 @@ import scala.language.implicitConversions
   *
   * Created by pjvanthof on 05/02/2017.
   */
-trait SummaryDb extends Closeable {
+trait SummaryDb extends Closeable with Logging {
 
   implicit val ec: ExecutionContext
 
   def db: Database
 
-  def close(): Unit = db.close()
+  def close(): Unit = {
+    logger.debug(s"Closing database: $db")
+    db.close()
+  }
 
   /** This will return all runs that match the critiria given */
   def getRuns(runId: Option[Int] = None,
@@ -338,14 +342,14 @@ trait SummaryDb extends Closeable {
     }).toMap
   }
 
-  def settingsFilter(runId: Option[Int] = None,
-                     pipeline: Option[PipelineQuery] = None,
-                     module: Option[ModuleQuery] = None,
-                     sample: Option[SampleQuery] = None,
-                     library: Option[LibraryQuery] = None,
-                     mustHaveSample: Boolean = false,
-                     mustHaveLibrary: Boolean = false)
-    : Query[Settings, Setting, Seq] = {
+  def settingsFilter(
+      runId: Option[Int] = None,
+      pipeline: Option[PipelineQuery] = None,
+      module: Option[ModuleQuery] = None,
+      sample: Option[SampleQuery] = None,
+      library: Option[LibraryQuery] = None,
+      mustHaveSample: Boolean = false,
+      mustHaveLibrary: Boolean = false): Query[Settings, Setting, Seq] = {
     var f: Query[Settings, Settings#TableElementType, Seq] = settings
     runId.foreach(r => f = f.filter(_.runId === r))
     f = pipeline match {
@@ -556,8 +560,9 @@ trait SummaryDb extends Closeable {
   }
 
   /** Returns a [[Query]] for [[Executables]] */
-  def executablesFilter(runId: Option[Int], toolName: Option[String])
-    : Query[Executables, Executable, Seq] = {
+  def executablesFilter(
+      runId: Option[Int],
+      toolName: Option[String]): Query[Executables, Executable, Seq] = {
     var q: Query[Executables, Executables#TableElementType, Seq] = executables
     runId.foreach(r => q = q.filter(_.runId === r))
     toolName.foreach(r => q = q.filter(_.toolName === r))
@@ -625,6 +630,7 @@ object SummaryDb {
       override def close(): Unit = {}
     }
 
+    Logging.logger.debug(s"Opening H2 database: $file")
     val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",
                              executor = asyncExecutor)
     new SummaryDbReadOnly(db)

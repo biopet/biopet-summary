@@ -2,6 +2,8 @@ package nl.biopet.summary
 
 import nl.biopet.summary.SummaryDb._
 
+import scala.language.implicitConversions
+
 object Implicts {
 
   implicit def intToPipelineQuery(x: Int): PipelineQuery = PipelineId(x)

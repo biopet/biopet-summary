@@ -151,7 +151,8 @@ object Schema {
       foreignKey("settings_pipeline_fk", pipelineId, pipelines)(_.id)
     def module = foreignKey("settings_module_fk", moduleId, modules)(_.id.?)
     def sample = foreignKey("settings_sample_fk", sampleId, samples)(_.id.?)
-    def library = foreignKey("settings_library_fk", libraryId, libraries)(_.id.?)
+    def library =
+      foreignKey("settings_library_fk", libraryId, libraries)(_.id.?)
   }
   val settings = TableQuery[Settings]
 
