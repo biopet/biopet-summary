@@ -199,7 +199,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testSettingKeys(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -239,7 +239,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testSettingsForSamples(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -276,7 +276,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testSettingsForLibraries(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -359,7 +359,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testStatKeys(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -399,7 +399,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testStatsForSamples(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -436,7 +436,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     db.close()
   }
 
-  //@Test
+  @Test
   def testStatsForLibraries(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
