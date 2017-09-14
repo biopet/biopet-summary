@@ -23,7 +23,7 @@ import org.testng.annotations.Test
 import play.api.libs.json.{JsDefined, JsString, Json}
 
 import nl.biopet.summary.SummaryDb._
-import nl.biopet.summary.SummaryDb.Implicts._
+import nl.biopet.summary.Implicts._
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

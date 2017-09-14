@@ -4,7 +4,7 @@ import java.sql.Date
 
 import nl.biopet.summary.Schema._
 import nl.biopet.summary.SummaryDb._
-import nl.biopet.summary.SummaryDb.Implicts._
+import nl.biopet.summary.Implicts._
 import slick.jdbc.H2Profile.api._
 
 import scala.concurrent.duration.Duration
