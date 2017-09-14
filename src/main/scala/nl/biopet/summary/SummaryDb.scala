@@ -625,14 +625,8 @@ object SummaryDb {
   def openReadOnlyH2Summary(file: File)(
       implicit ec: ExecutionContext): SummaryDbReadOnly = {
     require(file.exists(), s"File does not exist: $file")
-    val asyncExecutor = new AsyncExecutor {
-      override def executionContext: ExecutionContext = ec
-      override def close(): Unit = {}
-    }
-
     Logging.logger.debug(s"Opening H2 database: $file")
-    val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",
-                             executor = asyncExecutor)
+    val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}")
     new SummaryDbReadOnly(db)
   }
 }

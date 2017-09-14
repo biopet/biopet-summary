@@ -587,7 +587,6 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   @Test
   def testReadOnly(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
-    dbFile.deleteOnExit()
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
@@ -606,6 +605,10 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.commitHash shouldBe run1.commitHash
 
     SummaryDb.closeAll()
+    dbFile.delete()
+    intercept[IllegalArgumentException] {
+      SummaryDb.openReadOnlyH2Summary(dbFile)
+    }
   }
 
 }
