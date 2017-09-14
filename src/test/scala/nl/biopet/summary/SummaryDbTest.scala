@@ -235,6 +235,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     )
 
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map()) shouldBe Map()
+    db.getSettingKeys(runId, pipelineId, moduleId, sampleId, NoLibrary, keyValues = Map("content" -> List("content"))) shouldBe Map("content" -> None)
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content"))) shouldBe Map(
       "content" -> Some(JsDefined(JsString("test"))))
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content2", "key"))) shouldBe Map(
@@ -397,6 +398,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     )
 
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map()) shouldBe Map()
+    db.getStatKeys(runId, pipelineId, moduleId, sampleId, NoLibrary, keyValues = Map("content" -> List("content"))) shouldBe Map("content" -> None)
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content"))) shouldBe Map(
       "content" -> Some(JsDefined(JsString("test"))))
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content2", "key"))) shouldBe Map(
@@ -437,6 +439,10 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getStatsForSamples(runId, pipelineId, moduleId, keyValues = Map()) shouldBe Map(sampleId -> Map())
     db.getStatsForSamples(runId, pipelineId, moduleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
+      sampleId -> Map("content" -> Some(JsDefined(JsString("test")))))
+    db.getStatsForSamples(runId, pipelineId, moduleId, sample = sampleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
+      sampleId -> Map("content" -> Some(JsDefined(JsString("test")))))
+    db.getStatsForSamples(runId, pipelineId, moduleId, sample = "sample", keyValues = Map("content" -> List("content"))) shouldBe Map(
       sampleId -> Map("content" -> Some(JsDefined(JsString("test")))))
 
     db.close()
