@@ -12,7 +12,7 @@
   * license; For commercial users or users who do not want to follow the AGPL
   * license, please contact us to obtain a separate license.
   */
-package utils
+package nl.biopet.summary
 
 import java.io.File
 import java.sql.Date
@@ -20,13 +20,14 @@ import java.sql.Date
 import org.scalatest.Matchers
 import org.scalatest.testng.TestNGSuite
 import org.testng.annotations.Test
+import play.api.libs.json.{JsDefined, JsString, Json}
+
+import nl.biopet.summary.SummaryDb._
+import nl.biopet.summary.SummaryDb.Implicts._
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
-import SummaryDb._
-import SummaryDb.Implicts._
-import play.api.libs.json.{JsDefined, JsString, Json}
+import scala.concurrent.duration.Duration
 
 /**
   * Testing for [[SummaryDb]]

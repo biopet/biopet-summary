@@ -12,19 +12,18 @@
   * license; For commercial users or users who do not want to follow the AGPL
   * license, please contact us to obtain a separate license.
   */
-package utils
+package nl.biopet.summary
 
+import java.io.{Closeable, File}
+
+import nl.biopet.summary.Schema._
+import nl.biopet.summary.SummaryDb._
+import nl.biopet.summary.SummaryDb.Implicts._
+import play.api.libs.json.{JsLookupResult, JsValue, Json}
 import slick.jdbc.H2Profile.api._
-import utils.Schema._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
-import java.io.{Closeable, File}
-
-import play.api.libs.json.{JsLookupResult, JsValue, Json}
-import utils.SummaryDb._
-import utils.SummaryDb.Implicts._
-
 import scala.language.implicitConversions
 
 /**

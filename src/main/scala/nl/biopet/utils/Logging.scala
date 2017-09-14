@@ -1,4 +1,4 @@
-package utils
+package nl.biopet.utils
 
 import org.apache.log4j.Logger
 

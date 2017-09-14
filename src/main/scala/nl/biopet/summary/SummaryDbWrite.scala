@@ -1,15 +1,14 @@
-package utils
+package nl.biopet.summary
 
 import java.sql.Date
 
+import nl.biopet.summary.Schema._
+import nl.biopet.summary.SummaryDb._
+import nl.biopet.summary.SummaryDb.Implicts._
 import slick.jdbc.H2Profile.api._
 
-import utils.Schema._
-import utils.SummaryDb._
-import utils.SummaryDb.Implicts._
-
-import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     extends SummaryDb {
