@@ -1,4 +1,5 @@
-name := "summaryDb"
+organization := "nl.biopet"
+name := "summary"
 
 version := "0.1-SNAPSHOT"
 
@@ -16,4 +17,3 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.196"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % Test
 libraryDependencies += "org.testng" % "testng" % "6.8" % Test
-
