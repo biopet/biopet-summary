@@ -48,6 +48,10 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
     val run1 = Schema.Run(runId, "name", "dir", "version", "hash", date)
     val runs = Await.result(db.getRuns(), Duration.Inf)
+    runs shouldBe Await.result(db.getRuns(runName = Some("name")), Duration.Inf)
+    runs shouldBe Await.result(db.getRuns(outputDir = Some("dir")), Duration.Inf)
+    runs shouldBe Await.result(db.getRuns(runId = Some(runId)), Duration.Inf)
+    runs shouldBe Await.result(db.getRuns(runId = Some(runId), outputDir = Some("dir")), Duration.Inf)
     runs.size shouldBe 1
     runs.head.id shouldBe runId
     runs.head.name shouldBe run1.name
@@ -140,6 +144,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(db.getPipelineName(pipelineId), Duration.Inf) shouldBe Some("test")
     Await.result(db.getPipelines(), Duration.Inf) shouldBe Seq(
       Schema.Pipeline(pipelineId, "test"))
+    Await.result(db.getPipelines(pipelineId = Some(pipelineId), name = Some("test")), Duration.Inf) shouldBe Seq(
+      Schema.Pipeline(pipelineId, "test"))
     Await.result(db.getPipelineId("test"), Duration.Inf) shouldBe Some(pipelineId)
     Await.result(db.createPipeline("test"), Duration.Inf) shouldBe pipelineId
     Await.result(db.getPipelines(), Duration.Inf) shouldBe Seq(
@@ -179,15 +185,20 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
+    val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
+    val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("library", runId, sampleId), Duration.Inf)
 
-    Await.result(db.createOrUpdateSetting(runId, pipelineId, None, None, None, """{"content": "test" }"""),
+    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), """{"content": "test" }"""),
                  Duration.Inf)
-    Await.result(db.getSetting(runId, pipelineId, 0, 0, 0), Duration.Inf) shouldBe None
-    Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe Some(
+    Await.result(db.getSetting(runId, "pipeline", "module", "sample", "library"), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
-    Await.result(db.createOrUpdateSetting(runId, pipelineId, None, None, None, """{"content": "test2" }"""),
+    Await.result(db.getSetting(runId, pipelineId, moduleId, sampleId, libraryId), Duration.Inf) shouldBe Some(
+      Json.toJson(Map("content" -> "test")))
+    Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe None
+    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), """{"content": "test2" }"""),
                  Duration.Inf)
-    Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe Some(
+    Await.result(db.getSetting(runId, pipelineId, moduleId, sampleId, libraryId), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test2")))
     db.close()
   }
