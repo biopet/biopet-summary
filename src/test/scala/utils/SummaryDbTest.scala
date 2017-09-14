@@ -26,7 +26,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 import SummaryDb._
 import SummaryDb.Implicts._
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsDefined, JsString, Json}
 
 /**
   * Testing for [[SummaryDb]]
@@ -232,9 +232,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map()) shouldBe Map()
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      "content" -> Some(JsString("test")))
+      "content" -> Some(JsDefined(JsString("test"))))
     db.getSettingKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content2", "key"))) shouldBe Map(
-      "content" -> Some(JsString("value")))
+      "content" -> Some(JsDefined(JsString("value"))))
 
     db.close()
   }
@@ -271,7 +271,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getSettingsForSamples(runId, pipelineId, moduleId, keyValues = Map()) shouldBe Map(sampleId -> Map())
     db.getSettingsForSamples(runId, pipelineId, moduleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      sampleId -> Map("content" -> Some("test")))
+      sampleId -> Map("content" -> Some(JsDefined(JsString("test")))))
 
     db.close()
   }
@@ -309,7 +309,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getSettingsForLibraries(runId, pipelineId, moduleId, keyValues = Map()) shouldBe Map((sampleId, libraryId) -> Map())
     db.getSettingsForLibraries(runId, pipelineId, moduleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      (sampleId, libraryId) -> Map("content" -> Some(Json.toJson("test"))))
+      (sampleId, libraryId) -> Map("content" -> Some(JsDefined(Json.toJson("test")))))
 
     db.close()
   }
@@ -392,9 +392,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map()) shouldBe Map()
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      "content" -> Some("test"))
+      "content" -> Some(JsDefined(JsString("test"))))
     db.getStatKeys(runId, pipelineId, moduleId, sampleId, libraryId, keyValues = Map("content" -> List("content2", "key"))) shouldBe Map(
-      "content" -> Some("value"))
+      "content" -> Some(JsDefined(JsString("value"))))
 
     db.close()
   }
@@ -431,7 +431,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getStatsForSamples(runId, pipelineId, moduleId, keyValues = Map()) shouldBe Map(sampleId -> Map())
     db.getStatsForSamples(runId, pipelineId, moduleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      sampleId -> Map("content" -> Some("test")))
+      sampleId -> Map("content" -> Some(JsDefined(JsString("test")))))
 
     db.close()
   }
@@ -469,7 +469,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     db.getStatsForLibraries(runId, pipelineId, moduleId, keyValues = Map()) shouldBe Map((sampleId, libraryId) -> Map())
     db.getStatsForLibraries(runId, pipelineId, moduleId, keyValues = Map("content" -> List("content"))) shouldBe Map(
-      (sampleId, libraryId) -> Map("content" -> Some("test")))
+      (sampleId, libraryId) -> Map("content" -> Some(JsDefined(JsString("test")))))
 
     db.close()
   }
