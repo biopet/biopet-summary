@@ -2,7 +2,7 @@ package utils
 
 import java.sql.Date
 
-import slick.driver.H2Driver.api._
+import slick.jdbc.H2Profile.api._
 
 import utils.Schema._
 import utils.SummaryDb._

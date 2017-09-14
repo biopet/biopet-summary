@@ -14,7 +14,7 @@
   */
 package utils
 
-import slick.driver.H2Driver.api._
+import slick.jdbc.H2Profile.api._
 import utils.Schema._
 
 import scala.concurrent.duration.Duration

@@ -5,9 +5,8 @@ version := "0.1"
 scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.slick" %% "slick" % "3.2.1",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.1"
+  "com.typesafe.slick" % "slick_2.11" % "3.2.1",
+  "org.slf4j" % "slf4j-nop" % "1.6.4"
 )
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.20.0"
 libraryDependencies += "com.typesafe.play" % "play_2.11" % "2.6.3"
