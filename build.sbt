@@ -11,7 +11,6 @@ libraryDependencies ++= Seq(
 )
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.20.0"
 libraryDependencies += "com.typesafe.play" % "play-json_2.11" % "2.6.3"
-libraryDependencies += "org.yaml" % "snakeyaml" % "1.18"
 libraryDependencies += "log4j" % "log4j" % "1.2.17"
 libraryDependencies += "com.h2database" % "h2" % "1.4.196"
 

@@ -29,6 +29,8 @@ object Schema {
     def name = column[String]("name")
 
     def * = (id, name) <> (Project.tupled, Project.unapply)
+
+    def idx = index("idx_projects", name, unique = true)
   }
   val projects = TableQuery[Projects]
 
@@ -41,7 +43,7 @@ object Schema {
                  creationDate: Date)
   class Runs(tag: Tag) extends Table[Run](tag, "Runs") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-    def projectId = column[Int]("runId")
+    def projectId = column[Int]("projectId")
     def runName = column[String]("runName")
     def outputDir = column[String]("outputDir")
     def version = column[String]("version")
@@ -52,6 +54,8 @@ object Schema {
       (id, projectId, runName, outputDir, version, commitHash, creationDate) <> (Run.tupled, Run.unapply)
 
     def project = foreignKey("runs_project_fk", projectId, runs)(_.id)
+
+    def idx = index("idx_runs", (runName, projectId), unique = true)
   }
   val runs = TableQuery[Runs]
 
