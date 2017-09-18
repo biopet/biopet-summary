@@ -72,10 +72,10 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.name shouldBe run1.name
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
-    Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.createRun("name2", projectId, "dir", "version", "hash", date), Duration.Inf)
     val runs2 = Await.result(db.getRuns(), Duration.Inf)
     runs2.size shouldBe 2
-    runs2.map(_.name) shouldBe List("name", "name")
+    runs2.map(_.name) shouldBe List("name", "name2")
 
     db.close()
   }

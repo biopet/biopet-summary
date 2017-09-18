@@ -53,7 +53,7 @@ object Schema {
     def * =
       (id, projectId, runName, outputDir, version, commitHash, creationDate) <> (Run.tupled, Run.unapply)
 
-    def project = foreignKey("runs_project_fk", projectId, runs)(_.id)
+    def project = foreignKey("runs_project_fk", projectId, projects)(_.id)
 
     def idx = index("idx_runs", (runName, projectId), unique = true)
   }
