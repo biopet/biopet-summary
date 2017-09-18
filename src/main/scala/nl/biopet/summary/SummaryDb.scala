@@ -43,6 +43,17 @@ trait SummaryDb extends Closeable with Logging {
     db.close()
   }
 
+  def getProjects(name: Option[String] = None): Future[Seq[Project]] = {
+    name match {
+      case Some(n) => db.run(projects.filter(_.name === n).result)
+      case _ => db.run(projects.result)
+    }
+  }
+
+  def getProject(id: Int): Future[Option[Project]] = {
+    db.run(projects.filter(_.id === id).result).map(_.headOption)
+  }
+
   /** This will return all runs that match the critiria given */
   def getRuns(runId: Option[Int] = None,
               runName: Option[String] = None,
@@ -398,15 +409,21 @@ trait SummaryDb extends Closeable with Logging {
   }
 
   /** Return all settings that match the given criteria */
-  def getSettings(
-      runId: Option[Int] = None,
-      pipeline: Option[PipelineQuery] = None,
-      module: Option[ModuleQuery] = None,
-      sample: Option[SampleQuery] = None,
-      library: Option[LibraryQuery] = None,
-      mustHaveSample: Boolean = false,
-      mustHaveLibrary: Boolean = false): Future[Seq[Setting]] = {
-    db.run(settingsFilter(runId, pipeline, module, sample, library, mustHaveSample, mustHaveLibrary).result)
+  def getSettings(runId: Option[Int] = None,
+                  pipeline: Option[PipelineQuery] = None,
+                  module: Option[ModuleQuery] = None,
+                  sample: Option[SampleQuery] = None,
+                  library: Option[LibraryQuery] = None,
+                  mustHaveSample: Boolean = false,
+                  mustHaveLibrary: Boolean = false): Future[Seq[Setting]] = {
+    db.run(
+      settingsFilter(runId,
+                     pipeline,
+                     module,
+                     sample,
+                     library,
+                     mustHaveSample,
+                     mustHaveLibrary).result)
   }
 
   /** Return a specific setting as [[Map[String, Any]] */

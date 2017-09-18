@@ -16,7 +16,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
   /** This method will create all tables */
   def createTables(): Unit = {
     val setup = DBIO.seq(
-      (runs.schema ++ samples.schema ++
+      (projects.schema ++ runs.schema ++ samples.schema ++
         libraries.schema ++ pipelines.schema ++
         modules.schema ++ stats.schema ++ settings.schema ++
         files.schema ++ executables.schema).create
@@ -27,6 +27,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** This method will create a new run and return the runId */
   def createRun(runName: String,
+                projectId: Int,
                 outputDir: String,
                 version: String,
                 commitHash: String,
@@ -34,7 +35,20 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     val id = Await.result(db.run(runs.size.result), Duration.Inf)
     db.run(
         runs.forceInsert(
-          Run(id, runName, outputDir, version, commitHash, creationDate)))
+          Run(id,
+              projectId,
+              runName,
+              outputDir,
+              version,
+              commitHash,
+              creationDate)))
+      .map(_ => id)
+  }
+
+  /** This method will create a new run and return the runId */
+  def createProject(name: String): Future[Int] = {
+    val id = Await.result(db.run(projects.size.result), Duration.Inf)
+    db.run(projects.forceInsert(Project(id, name)))
       .map(_ => id)
   }
 

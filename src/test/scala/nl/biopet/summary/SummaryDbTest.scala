@@ -23,7 +23,7 @@ import org.testng.annotations.Test
 import play.api.libs.json.{JsDefined, JsString, Json}
 import nl.biopet.summary.SummaryDb._
 import nl.biopet.summary.Implicts._
-import nl.biopet.summary.Schema.{Setting, Stat}
+import nl.biopet.summary.Schema.{Project, Setting, Stat}
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,6 +36,20 @@ import scala.concurrent.duration.Duration
 class SummaryDbTest extends TestNGSuite with Matchers {
 
   @Test
+  def testProjects(): Unit = {
+    val dbFile = File.createTempFile("summary.", ".db")
+    dbFile.deleteOnExit()
+    val db = SummaryDb.openH2Summary(dbFile)
+    db.createTables()
+
+    Await.result(db.getProjects(), Duration.Inf) shouldBe empty
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    Await.result(db.getProjects(), Duration.Inf) shouldBe List(Project(projectId, "name"))
+    Await.result(db.getProjects(name = Some("name")), Duration.Inf) shouldBe List(Project(projectId, "name"))
+    Await.result(db.getProject(projectId), Duration.Inf) shouldBe Some(Project(projectId, "name"))
+  }
+
+  @Test
   def testRuns(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
@@ -45,8 +59,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val date = new Date(System.currentTimeMillis())
 
     Await.result(db.getRuns(), Duration.Inf) shouldBe empty
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
-    val run1 = Schema.Run(runId, "name", "dir", "version", "hash", date)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
+    val run1 = Schema.Run(runId, projectId, "name", "dir", "version", "hash", date)
     val runs = Await.result(db.getRuns(), Duration.Inf)
     runs shouldBe Await.result(db.getRuns(runName = Some("name")), Duration.Inf)
     runs shouldBe Await.result(db.getRuns(outputDir = Some("dir")), Duration.Inf)
@@ -57,7 +72,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.name shouldBe run1.name
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
-    Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
     val runs2 = Await.result(db.getRuns(), Duration.Inf)
     runs2.size shouldBe 2
     runs2.map(_.name) shouldBe List("name", "name")
@@ -74,7 +89,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     val date = new Date(System.currentTimeMillis())
 
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
     Await.result(db.getSamples(), Duration.Inf) shouldBe empty
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
     Await.result(db.createOrUpdateSample("test_sample", runId), Duration.Inf) shouldBe sampleId
@@ -107,7 +123,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     val date = new Date(System.currentTimeMillis())
 
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
     Await.result(db.getLibraries(), Duration.Inf) shouldBe empty
     val libraryId = Await.result(db.createLibrary("test_lib", runId, sampleId), Duration.Inf)
@@ -183,7 +200,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     dbFile.deleteOnExit()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -212,7 +230,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -253,7 +272,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -290,7 +310,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -328,8 +349,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
     val runId = Await.result(
-      db.createRun("test", "", "", "", new Date(System.currentTimeMillis())),
+      db.createRun("test", projectId, "", "", "", new Date(System.currentTimeMillis())),
       Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("test_pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
@@ -375,7 +397,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -416,7 +439,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -457,7 +481,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
@@ -495,8 +520,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
     val runId = Await.result(
-      db.createRun("test", "", "", "", new Date(System.currentTimeMillis())),
+      db.createRun("test", projectId, "", "", "", new Date(System.currentTimeMillis())),
       Duration.Inf)
     val pipelineId = Await.result(db.createPipeline("test_pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
@@ -583,7 +609,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val db = SummaryDb.openH2Summary(dbFile)
     db.createTables()
 
-    val runId = Await.result(db.createRun("run", "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("run", projectId, "dir", "version", "hash", new Date(System.currentTimeMillis())), Duration.Inf)
 
     Await.result(db.createOrUpdateExecutable(runId, "name"), Duration.Inf)
     Await.result(db.createOrUpdateExecutable(runId, "name", Some("test")), Duration.Inf)
@@ -602,11 +629,12 @@ class SummaryDbTest extends TestNGSuite with Matchers {
 
     val date = new Date(System.currentTimeMillis())
 
-    val runId = Await.result(db.createRun("name", "dir", "version", "hash", date), Duration.Inf)
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
 
     val readOnlyDb = SummaryDb.openReadOnlyH2Summary(dbFile)
 
-    val run1 = Schema.Run(runId, "name", "dir", "version", "hash", date)
+    val run1 = Schema.Run(runId, projectId, "name", "dir", "version", "hash", date)
     val runs = Await.result(readOnlyDb.getRuns(), Duration.Inf)
     runs.size shouldBe 1
     runs.head.id shouldBe runId
