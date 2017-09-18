@@ -6,6 +6,7 @@ import nl.biopet.summary.Schema._
 import nl.biopet.summary.SummaryDb._
 import nl.biopet.summary.Implicts._
 import slick.jdbc.H2Profile.api._
+import slick.jdbc.meta.MTable
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -15,14 +16,15 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** This method will create all tables */
   def createTables(): Unit = {
-    val setup = DBIO.seq(
-      (projects.schema ++ runs.schema ++ samples.schema ++
-        libraries.schema ++ pipelines.schema ++
-        modules.schema ++ stats.schema ++ settings.schema ++
-        files.schema ++ executables.schema).create
-    )
-    val setupFuture = db.run(setup)
-    Await.result(setupFuture, Duration.Inf)
+    val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
+
+    val schemas = List(projects, runs, samples, libraries, pipelines, modules, stats, settings, files, executables)
+
+    val setup = schemas.filter(t => !tables.exists(_.name.name == t.baseTableRow.tableName)).map(_.schema)
+    if (setup.nonEmpty) {
+      val setupFuture = db.run(setup.reduce(_ ++ _).create)
+      Await.result(setupFuture, Duration.Inf)
+    }
   }
 
   /** This method will create a new run and return the runId */

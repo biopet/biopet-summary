@@ -627,25 +627,29 @@ object SummaryDb {
   }
 
   /** This will open a sqlite database and create tables when the database did not exist yet */
-  def openH2Summary(file: File)(
-      implicit ec: ExecutionContext): SummaryDbWrite = {
+  def openH2Summary(file: File)(implicit ec: ExecutionContext): SummaryDbWrite = {
     if (!summaryConnections.contains(file)) {
       val exist = file.exists()
-      val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}",
-                               executor =
-                                 AsyncExecutor("single_thread", 1, 1000))
-      val s = new SummaryDbWrite(db)
-      if (!exist) s.createTables()
+      val s = openSummary(s"jdbc:h2:${file.getAbsolutePath}")
+      s.createTables()
       summaryConnections += file -> s
     }
     summaryConnections(file)
+  }
+
+  def openSummary(url: String)(implicit ec: ExecutionContext): SummaryDbWrite = {
+    new SummaryDbWrite(Database.forURL(url, executor = AsyncExecutor("single_thread", 1, 1000)))
   }
 
   def openReadOnlyH2Summary(file: File)(
       implicit ec: ExecutionContext): SummaryDbReadOnly = {
     require(file.exists(), s"File does not exist: $file")
     Logging.logger.debug(s"Opening H2 database: $file")
-    val db = Database.forURL(s"jdbc:h2:${file.getAbsolutePath}")
-    new SummaryDbReadOnly(db)
+    openReadOnlySummary(s"jdbc:h2:${file.getAbsolutePath}")
+  }
+
+  def openReadOnlySummary(url: String)(
+    implicit ec: ExecutionContext): SummaryDbReadOnly = {
+    new SummaryDbReadOnly(Database.forURL(url))
   }
 }
