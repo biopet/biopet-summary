@@ -25,6 +25,14 @@ node('local') {
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'target/scala-2.11/scoverage-report/', reportFiles: 'index.html', reportName: 'Scoverage Report', reportTitles: ''])
         }
 
+        if (env.BRANCH_NAME == 'develop') stage('Publish') {
+            sh "${tool name: 'sbt 0.13.15', type: 'org.jvnet.hudson.plugins.SbtPluginBuilder$SbtInstallation'}/bin/sbt publishLocal"
+        }
+
+        if (env.BRANCH_NAME == 'master') stage('Publish') {
+            sh "${tool name: 'sbt 0.13.15', type: 'org.jvnet.hudson.plugins.SbtPluginBuilder$SbtInstallation'}/bin/sbt publishLocal"
+        }
+
         if (currentBuild.result == null || "SUCCESS" == currentBuild.result) {
             currentBuild.result = "SUCCESS"
             slackSend(color: '#00FF00', message: "${currentBuild.result}: Job '${env.JOB_NAME} #${env.BUILD_NUMBER}' (<${env.BUILD_URL}|Open>)", channel: '#biopet-bot', teamDomain: 'lumc', tokenCredentialId: 'lumc')
