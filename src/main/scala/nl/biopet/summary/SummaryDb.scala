@@ -56,11 +56,13 @@ trait SummaryDb extends Closeable with Logging {
 
   /** This will return all runs that match the critiria given */
   def getRuns(runId: Option[Int] = None,
+              protectId: Option[Int] = None,
               runName: Option[String] = None,
               outputDir: Option[String] = None): Future[Seq[Run]] = {
     val q = runs.filter { run =>
       List(
         runId.map(run.id === _),
+        protectId.map(run.projectId === _),
         runName.map(run.runName === _),
         outputDir.map(run.outputDir === _)
       ).collect({ case Some(criteria) => criteria })
