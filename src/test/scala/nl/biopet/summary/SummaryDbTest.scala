@@ -210,17 +210,18 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("library", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
-    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), """{"content": "test" }"""),
+    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), Some(readgroupId), """{"content": "test" }"""),
                  Duration.Inf)
     Await.result(db.getSetting(runId, "pipeline", "module", "sample", "library"), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.getSettings(Some(runId), Some("pipeline"), Some("module"), mustHaveLibrary = true, mustHaveSample = true), Duration.Inf) shouldBe
-      List(Setting(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId),"""{"content": "test" }"""))
+      List(Setting(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId), Some(readgroupId),"""{"content": "test" }"""))
     Await.result(db.getSetting(runId, pipelineId, moduleId, sampleId, libraryId), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe None
-    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), """{"content": "test2" }"""),
+    Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), Some(readgroupId), """{"content": "test2" }"""),
                  Duration.Inf)
     Await.result(db.getSetting(runId, pipelineId, moduleId, sampleId, libraryId), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test2")))
@@ -240,6 +241,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateSetting(
@@ -248,6 +250,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         Some(moduleId),
         Some(sampleId),
         Some(libraryId),
+        Some(readgroupId),
         """
         |{
         |"content": "test",
@@ -288,7 +291,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         pipelineId,
         Some(moduleId),
         Some(sampleId),
-        None,
+        None, None,
         """
         |{
         |"content": "test",
@@ -320,6 +323,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateSetting(
@@ -328,6 +332,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         Some(moduleId),
         Some(sampleId),
         Some(libraryId),
+        Some(readgroupId),
         """
         |{
         |"content": "test",
@@ -361,17 +366,18 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("test_library", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 0
 
     Await.result(
-      db.createOrUpdateStat(runId, pipelineId, None, None, None, """{"content": "test" }"""),
+      db.createOrUpdateStat(runId, pipelineId, None, None, None, None, """{"content": "test" }"""),
       Duration.Inf)
     Await.result(db.getStat(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 1
     Await.result(
-      db.createOrUpdateStat(runId, pipelineId, None, None, None, """{"content": "test2" }"""),
+      db.createOrUpdateStat(runId, pipelineId, None, None, None, None, """{"content": "test2" }"""),
       Duration.Inf)
     Await.result(db.getStat(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test2")))
@@ -382,13 +388,14 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        pipelineId,
                                        Some(moduleId),
                                        Some(sampleId),
-                                       Some(libraryId),
+      Some(libraryId),
+      Some(readgroupId),
                                        """{"content": "test3" }"""),
                  Duration.Inf)
     Await.result(db.getStat(runId, "test_pipeline", "test_module", "test_sample", "test_library"),
       Duration.Inf) shouldBe Some(Json.toJson(Map("content" -> "test3")))
     Await.result(db.getStats(Some(runId), Some("test_pipeline"), Some("test_module"), mustHaveSample = true, mustHaveLibrary = true),
-      Duration.Inf) shouldBe Seq(Stat(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId),"""{"content": "test3" }"""))
+      Duration.Inf) shouldBe Seq(Stat(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId),Some(readgroupId),"""{"content": "test3" }"""))
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 2
 
     db.close()
@@ -407,6 +414,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateStat(
@@ -415,6 +423,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         Some(moduleId),
         Some(sampleId),
         Some(libraryId),
+        Some(readgroupId),
         """
         |{
         |"content": "test",
@@ -455,7 +464,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         pipelineId,
         Some(moduleId),
         Some(sampleId),
-        None,
+        None,None,
         """
         |{
         |"content": "test",
@@ -491,6 +500,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateStat(
@@ -499,6 +509,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
         Some(moduleId),
         Some(sampleId),
         Some(libraryId),
+        Some(readgroupId),
         """
         |{
         |"content": "test",
@@ -532,9 +543,11 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
     val libraryId = Await.result(db.createLibrary("test_library", sampleId), Duration.Inf)
+    val readgroupId = Await.result(db.createReadgroup("readgroup", libraryId), Duration.Inf)
 
     Await.result(db.createOrUpdateFile(runId,
                                        pipelineId,
+                                       None,
                                        None,
                                        None,
                                        None,
@@ -545,14 +558,14 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        1),
                  Duration.Inf)
     Await.result(db.getFile(runId, pipelineId, NoModule, NoSample, NoLibrary, "key"), Duration.Inf) shouldBe Some(
-      Schema.File(runId, pipelineId, None, None, None, "key", "path", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, None, "key", "path", "md5", link = false, 1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(runId, pipelineId, None, None, None, "key", "path", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, None, "key", "path", "md5", link = false, 1))
     Await.result(db.createOrUpdateFile(runId,
                                        pipelineId,
                                        None,
                                        None,
-                                       None,
+                                       None, None,
                                        "key",
                                        "path2",
                                        "md5",
@@ -560,9 +573,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        1),
                  Duration.Inf)
     Await.result(db.getFile(runId, pipelineId, NoModule, NoSample, NoLibrary, "key"), Duration.Inf) shouldBe Some(
-      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, None, "key", "path2", "md5", link = false, 1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, None, "key", "path2", "md5", link = false, 1))
 
     // Test join queries
     Await.result(db.createOrUpdateFile(runId,
@@ -570,6 +583,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        Some(moduleId),
                                        Some(sampleId),
                                        Some(libraryId),
+                                       Some(readgroupId),
                                        "key",
                                        "path3",
                                        "md5",
@@ -583,17 +597,19 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                   Some(moduleId),
                   Some(sampleId),
                   Some(libraryId),
+        Some(readgroupId),
                   "key",
                   "path3",
                   "md5",
                   link = false,
                   1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1),
+      Schema.File(runId, pipelineId, None, None, None, None, "key", "path2", "md5", link = false, 1),
       Schema.File(runId, pipelineId,
                   Some(moduleId),
                   Some(sampleId),
-                  Some(libraryId),
+        Some(libraryId),
+        Some(readgroupId),
                   "key",
                   "path3",
                   "md5",

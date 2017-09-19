@@ -141,7 +141,8 @@ object Schema {
                   pipelineId: Int,
                   moduleId: Option[Int],
                   sampleId: Option[Int],
-                  library: Option[Int],
+                  libraryId: Option[Int],
+                  readgroupId: Option[Int],
                   content: String)
   class Stats(tag: Tag) extends Table[Stat](tag, "Stats") {
     def runId = column[Int]("runId")
@@ -149,10 +150,11 @@ object Schema {
     def moduleId = column[Option[Int]]("moduleId")
     def sampleId = column[Option[Int]]("sampleId")
     def libraryId = column[Option[Int]]("libraryId")
+    def readgroupId = column[Option[Int]]("readgroupId")
     def content = column[String]("content")
 
     def * =
-      (runId, pipelineId, moduleId, sampleId, libraryId, content) <> (Stat.tupled, Stat.unapply)
+      (runId, pipelineId, moduleId, sampleId, libraryId, readgroupId, content) <> (Stat.tupled, Stat.unapply)
 
     def run = foreignKey("stats_run_fk", runId, runs)(_.id)
     def pipeline = foreignKey("stats_pipeline_fk", pipelineId, pipelines)(_.id)
@@ -166,7 +168,8 @@ object Schema {
                      pipelineId: Int,
                      moduleId: Option[Int],
                      sampleId: Option[Int],
-                     library: Option[Int],
+                     libraryId: Option[Int],
+                     readgroupId: Option[Int],
                      content: String)
   class Settings(tag: Tag) extends Table[Setting](tag, "Settings") {
     def runId = column[Int]("runId")
@@ -174,10 +177,11 @@ object Schema {
     def moduleId = column[Option[Int]]("moduleId")
     def sampleId = column[Option[Int]]("sampleId")
     def libraryId = column[Option[Int]]("libraryId")
+    def readgroupId = column[Option[Int]]("readgroupId")
     def content = column[String]("content")
 
     def * =
-      (runId, pipelineId, moduleId, sampleId, libraryId, content) <> (Setting.tupled, Setting.unapply)
+      (runId, pipelineId, moduleId, sampleId, libraryId, readgroupId, content) <> (Setting.tupled, Setting.unapply)
 
     def run = foreignKey("settings_run_fk", runId, runs)(_.id)
     def pipeline =
@@ -194,6 +198,7 @@ object Schema {
                   moduleId: Option[Int],
                   sampleId: Option[Int],
                   libraryId: Option[Int],
+                  readgroupId: Option[Int],
                   key: String,
                   path: String,
                   md5: String,
@@ -205,6 +210,7 @@ object Schema {
     def moduleId = column[Option[Int]]("moduleId")
     def sampleId = column[Option[Int]]("sampleId")
     def libraryId = column[Option[Int]]("libraryId")
+    def readgroupId = column[Option[Int]]("readgroupId")
     def key = column[String]("key")
     def path =
       column[String]("path") // This should be relative to the outputDir
@@ -218,6 +224,7 @@ object Schema {
        moduleId,
        sampleId,
        libraryId,
+       readgroupId,
        key,
        path,
        md5,

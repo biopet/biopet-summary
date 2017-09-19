@@ -188,10 +188,11 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  moduleId: Option[Int] = None,
                  sampleId: Option[Int] = None,
                  libId: Option[Int] = None,
+                 readgroupId: Option[Int] = None,
                  content: String): Future[Int] = {
     db.run(
       stats +=
-        Stat(runId, pipelineId, moduleId, sampleId, libId, content))
+        Stat(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content))
   }
 
   /** This create or update a stat */
@@ -200,6 +201,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                          moduleId: Option[Int] = None,
                          sampleId: Option[Int] = None,
                          libId: Option[Int] = None,
+                         readgroupId: Option[Int] = None,
                          content: String): Future[Int] = {
     val filter = statsFilter(
       Some(runId),
@@ -210,7 +212,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     )
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
-      createStat(runId, pipelineId, moduleId, sampleId, libId, content)
+      createStat(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)
     else db.run(filter.map(_.content).update(content))
   }
 
@@ -220,10 +222,11 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     moduleId: Option[Int] = None,
                     sampleId: Option[Int] = None,
                     libId: Option[Int] = None,
+                    readgroupId: Option[Int] = None,
                     content: String): Future[Int] = {
     db.run(
       settings +=
-        Setting(runId, pipelineId, moduleId, sampleId, libId, content))
+        Setting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content))
   }
 
   /** This method creates or update a setting. */
@@ -232,6 +235,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                             moduleId: Option[Int] = None,
                             sampleId: Option[Int] = None,
                             libId: Option[Int] = None,
+                            readgroupId: Option[Int] = None,
                             content: String): Future[Int] = {
     val filter = settingsFilter(Some(runId),
                                 PipelineId(pipelineId),
@@ -240,11 +244,11 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                                 libId.map(LibraryId))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
-      createSetting(runId, pipelineId, moduleId, sampleId, libId, content)
+      createSetting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)
     else
       db.run(
         filter.update(
-          Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
+          Setting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)))
   }
 
   /** Creates a file. This method will raise exception if it already exist */
@@ -253,6 +257,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  moduleId: Option[Int] = None,
                  sampleId: Option[Int] = None,
                  libId: Option[Int] = None,
+                 readgroupId: Option[Int] = None,
                  key: String,
                  path: String,
                  md5: String,
@@ -265,6 +270,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     moduleId,
                     sampleId,
                     libId,
+                    readgroupId,
                     key,
                     path,
                     md5,
@@ -278,6 +284,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                          moduleId: Option[Int] = None,
                          sampleId: Option[Int] = None,
                          libId: Option[Int] = None,
+                         readgroupId: Option[Int] = None,
                          key: String,
                          path: String,
                          md5: String,
@@ -296,6 +303,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  moduleId,
                  sampleId,
                  libId,
+                 readgroupId,
                  key,
                  path,
                  md5,
@@ -309,6 +317,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                       moduleId,
                       sampleId,
                       libId,
+                      readgroupId,
                       key,
                       path,
                       md5,
