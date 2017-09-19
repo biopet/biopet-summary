@@ -27,21 +27,22 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     }
   }
 
-  def createOrUpdate(runName: String,
-                     projectId: Int,
-                     outputDir: String,
-                     version: String,
-                     commitHash: String,
-                     creationDate: Date): Future[Int] = {
+  /** This method will create or update a run and return the runId */
+  def createOrUpdateRun(runName: String,
+                        projectId: Int,
+                        outputDir: String,
+                        version: String,
+                        commitHash: String,
+                        creationDate: Date): Future[Int] = {
     val q = runs
       .filter(_.projectId === projectId)
       .filter(_.runName === runName)
     db.run(q.result).map(_.headOption).flatMap {
-      case Some(run) => db.run(q.update(run.copy(outputDir = outputDir, version = version, commitHash = commitHash, creationDate = creationDate)))
+      case Some(run) =>
+        db.run(q.update(run.copy(outputDir = outputDir, version = version, commitHash = commitHash, creationDate = creationDate)))
+          .map(_ => run.id)
       case _ => createRun(runName, projectId, outputDir, version, commitHash, creationDate)
     }
-
-
   }
 
   /** This method will create a new run and return the runId */

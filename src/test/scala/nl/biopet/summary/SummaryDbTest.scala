@@ -61,6 +61,10 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(db.getRuns(), Duration.Inf) shouldBe empty
     val projectId = Await.result(db.createProject("name"), Duration.Inf)
     val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.getRuns(), Duration.Inf).size shouldBe 1
+    val runIdAgain = Await.result(db.createOrUpdateRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.getRuns(), Duration.Inf).size shouldBe 1
+    runId shouldBe runIdAgain
     val run1 = Schema.Run(runId, projectId, "name", "dir", "version", "hash", date)
     val runs = Await.result(db.getRuns(), Duration.Inf)
     runs shouldBe Await.result(db.getRuns(runName = Some("name")), Duration.Inf)
@@ -72,7 +76,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     runs.head.name shouldBe run1.name
     runs.head.outputDir shouldBe run1.outputDir
     runs.head.commitHash shouldBe run1.commitHash
-    Await.result(db.createRun("name2", projectId, "dir", "version", "hash", date), Duration.Inf)
+    Await.result(db.createOrUpdateRun("name2", projectId, "dir", "version", "hash", date), Duration.Inf)
     val runs2 = Await.result(db.getRuns(), Duration.Inf)
     runs2.size shouldBe 2
     runs2.map(_.name) shouldBe List("name", "name2")
