@@ -22,6 +22,7 @@ import nl.biopet.summary.Implicts._
 import nl.biopet.utils.Logging
 import play.api.libs.json.{JsLookupResult, JsValue, Json}
 import slick.jdbc.H2Profile.api._
+import slick.jdbc.meta.MTable
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -34,6 +35,8 @@ import scala.language.implicitConversions
   */
 trait SummaryDb extends Closeable with Logging {
 
+  lazy val schemas = List(projects, runs, samples, libraries, pipelines, modules, stats, settings, files, executables)
+
   implicit val ec: ExecutionContext
 
   def db: Database
@@ -41,6 +44,12 @@ trait SummaryDb extends Closeable with Logging {
   def close(): Unit = {
     logger.debug(s"Closing database: $db")
     db.close()
+  }
+
+  def tablesExist(): Boolean = {
+    val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
+
+    schemas.forall(s => tables.exists(_.name.name == s.baseTableRow.tableName))
   }
 
   def getProjects(name: Option[String] = None): Future[Seq[Project]] = {

@@ -16,14 +16,14 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** This method will create all tables */
   def createTables(): Unit = {
-    val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
+    if (!tablesExist()) {
+      val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
 
-    val schemas = List(projects, runs, samples, libraries, pipelines, modules, stats, settings, files, executables)
-
-    val setup = schemas.filter(t => !tables.exists(_.name.name == t.baseTableRow.tableName)).map(_.schema)
-    if (setup.nonEmpty) {
-      val setupFuture = db.run(setup.reduce(_ ++ _).create)
-      Await.result(setupFuture, Duration.Inf)
+      val setup = schemas.filter(t => !tables.exists(_.name.name == t.baseTableRow.tableName)).map(_.schema)
+      if (setup.nonEmpty) {
+        val setupFuture = db.run(setup.reduce(_ ++ _).create)
+        Await.result(setupFuture, Duration.Inf)
+      }
     }
   }
 
