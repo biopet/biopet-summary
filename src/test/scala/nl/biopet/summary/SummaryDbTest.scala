@@ -216,7 +216,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(db.getSetting(runId, "pipeline", "module", "sample", "library"), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.getSettings(Some(runId), Some("pipeline"), Some("module"), mustHaveLibrary = true, mustHaveSample = true), Duration.Inf) shouldBe
-      List(Setting(0,0,Some(0),Some(0),Some(0),"""{"content": "test" }"""))
+      List(Setting(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId),"""{"content": "test" }"""))
     Await.result(db.getSetting(runId, pipelineId, moduleId, sampleId, libraryId), Duration.Inf) shouldBe Some(
       Json.toJson(Map("content" -> "test")))
     Await.result(db.getSetting(runId, pipelineId, NoModule, NoSample, NoLibrary), Duration.Inf) shouldBe None
@@ -388,7 +388,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(db.getStat(runId, "test_pipeline", "test_module", "test_sample", "test_library"),
       Duration.Inf) shouldBe Some(Json.toJson(Map("content" -> "test3")))
     Await.result(db.getStats(Some(runId), Some("test_pipeline"), Some("test_module"), mustHaveSample = true, mustHaveLibrary = true),
-      Duration.Inf) shouldBe Seq(Stat(0,0,Some(0),Some(0),Some(0),"""{"content": "test3" }"""))
+      Duration.Inf) shouldBe Seq(Stat(runId,pipelineId,Some(moduleId),Some(sampleId),Some(libraryId),"""{"content": "test3" }"""))
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 2
 
     db.close()
