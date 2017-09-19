@@ -94,9 +94,9 @@ object Schema {
   val libraries = TableQuery[Libraries]
 
   case class Readgroup(id: Int,
-                     name: String,
-                     libraryId: Int,
-                     tags: Option[String])
+                       name: String,
+                       libraryId: Int,
+                       tags: Option[String])
   class Readgroups(tag: Tag) extends Table[Readgroup](tag, "Readgroups") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
@@ -106,7 +106,8 @@ object Schema {
     def * =
       (id, name, libraryId, tags) <> (Readgroup.tupled, Readgroup.unapply)
 
-    def library = foreignKey("readgroup_library_fk", libraryId, libraries)(_.id)
+    def library =
+      foreignKey("readgroup_library_fk", libraryId, libraries)(_.id)
 
     def idx = index("idx_readgroups", (libraryId, name), unique = true)
   }

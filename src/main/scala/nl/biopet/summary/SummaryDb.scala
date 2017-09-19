@@ -142,10 +142,8 @@ trait SummaryDb extends Closeable with Logging {
   }
 
   /** Return a libraryId for a specific combination */
-  def getLibraryId(sampleId: Int,
-                   name: String): Future[Option[Int]] = {
-    getLibraries(sampleId = Some(sampleId),
-                 name = Some(name))
+  def getLibraryId(sampleId: Int, name: String): Future[Option[Int]] = {
+    getLibraries(sampleId = Some(sampleId), name = Some(name))
       .map(_.headOption.map(_.id))
   }
 
@@ -162,8 +160,8 @@ trait SummaryDb extends Closeable with Logging {
 
   /** This returns all readgroups that match the given criteria */
   def getReadgroups(libId: Option[Int] = None,
-                   name: Option[String] = None,
-                   libraryId: Option[Int] = None): Future[Seq[Readgroup]] = {
+                    name: Option[String] = None,
+                    libraryId: Option[Int] = None): Future[Seq[Readgroup]] = {
     val q = readgroups.filter { lib =>
       List(
         libId.map(lib.id === _),
@@ -177,10 +175,8 @@ trait SummaryDb extends Closeable with Logging {
   }
 
   /** Return a readgroupId for a specific combination */
-  def getReadgroupId(libraryId: Int,
-                   name: String): Future[Option[Int]] = {
-    getReadgroups(libraryId = Some(libraryId),
-      name = Some(name))
+  def getReadgroupId(libraryId: Int, name: String): Future[Option[Int]] = {
+    getReadgroups(libraryId = Some(libraryId), name = Some(name))
       .map(_.headOption.map(_.id))
   }
 
@@ -328,7 +324,8 @@ trait SummaryDb extends Closeable with Logging {
                   pipeline,
                   module,
                   sample,
-                  library,readgroup,
+                  library,
+                  readgroup,
                   mustHaveSample,
                   mustHaveLibrary).result)
   }
@@ -347,7 +344,8 @@ trait SummaryDb extends Closeable with Logging {
                   pipeline,
                   module,
                   sample,
-                  library,readgroup,
+                  library,
+                  readgroup,
                   mustHaveSample,
                   mustHaveLibrary).size.result)
   }
@@ -499,7 +497,8 @@ trait SummaryDb extends Closeable with Logging {
                      pipeline,
                      module,
                      sample,
-                     library,readgroup,
+                     library,
+                     readgroup,
                      mustHaveSample,
                      mustHaveLibrary).result)
   }
@@ -645,7 +644,13 @@ trait SummaryDb extends Closeable with Logging {
                library: Option[LibraryQuery] = None,
                readgroup: Option[ReadgroupQuery] = None,
                key: Option[String] = None): Future[Seq[Schema.File]] = {
-    db.run(filesFilter(runId, pipeline, module, sample, library, readgroup, key).result)
+    db.run(filesFilter(runId,
+                       pipeline,
+                       module,
+                       sample,
+                       library,
+                       readgroup,
+                       key).result)
   }
 
   def getFile(runId: Int,
@@ -660,8 +665,8 @@ trait SummaryDb extends Closeable with Logging {
                     Some(pipeline),
                     Some(module),
                     Some(sample),
-          Some(library),
-          Some(readgroup),
+                    Some(library),
+                    Some(readgroup),
                     Some(key)).result)
       .map(_.headOption)
   }

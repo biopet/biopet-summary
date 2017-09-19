@@ -65,9 +65,19 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                 version: String,
                 commitHash: String,
                 creationDate: Date): Future[Int] = {
-    db.run(runs.map(c => (c.runName, c.projectId, c.outputDir, c.version, c.commitHash, c.creationDate)) +=
-      (runName, projectId, outputDir, version, commitHash, creationDate))
-      .flatMap(_ => getRuns(protectId = Some(projectId), runName = Some(runName)).map(_.head.id))
+    db.run(
+        runs.map(
+          c =>
+            (c.runName,
+             c.projectId,
+             c.outputDir,
+             c.version,
+             c.commitHash,
+             c.creationDate)) +=
+          (runName, projectId, outputDir, version, commitHash, creationDate))
+      .flatMap(_ =>
+        getRuns(protectId = Some(projectId), runName = Some(runName))
+          .map(_.head.id))
   }
 
   /** This method will create a new run and return the runId */
@@ -104,8 +114,9 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
   def createLibrary(name: String,
                     sampleId: Int,
                     tags: Option[String] = None): Future[Int] = {
-    db.run(libraries
-        .map(s => (s.name, s.sampleId, s.tags)) += (name, sampleId, tags))
+    db.run(
+        libraries
+          .map(s => (s.name, s.sampleId, s.tags)) += (name, sampleId, tags))
       .flatMap(_ => getLibraryId(sampleId, name).map(_.head))
   }
 
@@ -129,24 +140,25 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
   /** This will create a new readgroup */
   def createReadgroup(name: String,
                       libraryId: Int,
-                    tags: Option[String] = None): Future[Int] = {
-    db.run(readgroups
-      .map(s => (s.name, s.libraryId, s.tags)) += (name, libraryId, tags))
+                      tags: Option[String] = None): Future[Int] = {
+    db.run(
+        readgroups
+          .map(s => (s.name, s.libraryId, s.tags)) += (name, libraryId, tags))
       .flatMap(_ => getReadgroupId(libraryId, name).map(_.head))
   }
 
   def createOrUpdateReadgroup(name: String,
                               libraryId: Int,
-                            tags: Option[String] = None): Future[Int] = {
+                              tags: Option[String] = None): Future[Int] = {
     getReadgroupId(libraryId, name).flatMap {
       case Some(id: Int) =>
         db.run(
-          readgroups
-            .filter(_.name === name)
-            .filter(_.id === id)
-            .filter(_.libraryId === libraryId)
-            .map(_.tags)
-            .update(tags))
+            readgroups
+              .filter(_.name === name)
+              .filter(_.id === id)
+              .filter(_.libraryId === libraryId)
+              .map(_.tags)
+              .update(tags))
           .map(_ => id)
       case _ => createReadgroup(name, libraryId, tags)
     }
@@ -190,9 +202,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  libId: Option[Int] = None,
                  readgroupId: Option[Int] = None,
                  content: String): Future[Int] = {
-    db.run(
-      stats +=
-        Stat(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content))
+    db.run(stats +=
+      Stat(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content))
   }
 
   /** This create or update a stat */
@@ -212,7 +223,13 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     )
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
-      createStat(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)
+      createStat(runId,
+                 pipelineId,
+                 moduleId,
+                 sampleId,
+                 libId,
+                 readgroupId,
+                 content)
     else db.run(filter.map(_.content).update(content))
   }
 
@@ -226,7 +243,13 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     content: String): Future[Int] = {
     db.run(
       settings +=
-        Setting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content))
+        Setting(runId,
+                pipelineId,
+                moduleId,
+                sampleId,
+                libId,
+                readgroupId,
+                content))
   }
 
   /** This method creates or update a setting. */
@@ -244,11 +267,23 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                                 libId.map(LibraryId))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
-      createSetting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)
+      createSetting(runId,
+                    pipelineId,
+                    moduleId,
+                    sampleId,
+                    libId,
+                    readgroupId,
+                    content)
     else
       db.run(
         filter.update(
-          Setting(runId, pipelineId, moduleId, sampleId, libId, readgroupId, content)))
+          Setting(runId,
+                  pipelineId,
+                  moduleId,
+                  sampleId,
+                  libId,
+                  readgroupId,
+                  content)))
   }
 
   /** Creates a file. This method will raise exception if it already exist */
@@ -294,8 +329,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                              PipelineId(pipelineId),
                              moduleId.map(ModuleId),
                              sampleId.map(SampleId),
-      libId.map(LibraryId),
-      readgroupId.map(ReadgroupId),
+                             libId.map(LibraryId),
+                             readgroupId.map(ReadgroupId),
                              Some(key))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)
