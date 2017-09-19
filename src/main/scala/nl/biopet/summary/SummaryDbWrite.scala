@@ -80,17 +80,16 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** This method will create a new run and return the runId */
   def createProject(name: String): Future[Int] = {
-    val id = Await.result(db.run(projects.size.result), Duration.Inf)
-    db.run(projects.forceInsert(Project(id, name)))
-      .map(_ => id)
+    db.run(projects.map(_.name) += name)
+      .flatMap(_ => getProjects(Some(name)).map(_.head.id))
   }
 
   /** This creates a new sample and return the sampleId */
   def createSample(name: String,
                    runId: Int,
                    tags: Option[String] = None): Future[Int] = {
-    val id = Await.result(db.run(samples.size.result), Duration.Inf)
-    db.run(samples.forceInsert(Sample(id, name, runId, tags))).map(_ => id)
+    db.run(samples.map(s => (s.name, s.runId, s.tags)) += (name, runId, tags))
+      .flatMap(_ => getSampleId(runId, name).map(_.head))
   }
 
   def createOrUpdateSample(name: String,
@@ -114,9 +113,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     runId: Int,
                     sampleId: Int,
                     tags: Option[String] = None): Future[Int] = {
-    val id = Await.result(db.run(libraries.size.result), Duration.Inf)
-    db.run(libraries.forceInsert(Library(id, name, runId, sampleId, tags)))
-      .map(_ => id)
+    db.run(libraries.map(s => (s.name, s.runId, s.sampleId, s.tags)) += (name, runId, sampleId, tags))
+      .flatMap(_ => getLibraryId(runId, sampleId, name).map(_.head))
   }
 
   def createOrUpdateLibrary(name: String,
