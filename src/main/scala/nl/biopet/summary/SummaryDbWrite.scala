@@ -113,7 +113,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     runId: Int,
                     sampleId: Int,
                     tags: Option[String] = None): Future[Int] = {
-    db.run(libraries.map(s => (s.name, s.runId, s.sampleId, s.tags)) += (name, runId, sampleId, tags))
+    db.run(libraries
+        .map(s => (s.name, s.runId, s.sampleId, s.tags)) += (name, runId, sampleId, tags))
       .flatMap(_ => getLibraryId(runId, sampleId, name).map(_.head))
   }
 
