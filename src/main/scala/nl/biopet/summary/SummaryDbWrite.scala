@@ -294,7 +294,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                              PipelineId(pipelineId),
                              moduleId.map(ModuleId),
                              sampleId.map(SampleId),
-                             libId.map(LibraryId),
+      libId.map(LibraryId),
+      readgroupId.map(ReadgroupId),
                              Some(key))
     val r = Await.result(db.run(filter.size.result), Duration.Inf)
     if (r == 0)

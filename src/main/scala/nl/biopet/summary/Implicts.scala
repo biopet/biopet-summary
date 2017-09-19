@@ -43,4 +43,14 @@ object Implicts {
     Some(LibraryName(x))
   implicit def libraryQueryToOptionLibraryQuery(
       x: LibraryQuery): Option[LibraryQuery] = Some(x)
+
+  implicit def intToReadgroupQuery(x: Int): ReadgroupQuery = ReadgroupId(x)
+  implicit def stringToReadgroupQuery(x: String): ReadgroupQuery = ReadgroupName(x)
+  implicit def intToOptionReadgroupQuery(x: Int): Option[ReadgroupQuery] =
+    Some(ReadgroupId(x))
+  implicit def stringToOptionReadgroupQuery(x: String): Option[ReadgroupQuery] =
+    Some(ReadgroupName(x))
+  implicit def libraryQueryToOptionReadgroupQuery(
+                                                 x: ReadgroupQuery): Option[ReadgroupQuery] = Some(x)
+
 }
