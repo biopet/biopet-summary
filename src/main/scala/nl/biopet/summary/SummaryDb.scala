@@ -35,7 +35,16 @@ import scala.language.implicitConversions
   */
 trait SummaryDb extends Closeable with Logging {
 
-  lazy val schemas = List(projects, runs, samples, libraries, pipelines, modules, stats, settings, files, executables)
+  lazy val schemas = List(projects,
+                          runs,
+                          samples,
+                          libraries,
+                          pipelines,
+                          modules,
+                          stats,
+                          settings,
+                          files,
+                          executables)
 
   implicit val ec: ExecutionContext
 
@@ -638,7 +647,8 @@ object SummaryDb {
   }
 
   /** This will open a sqlite database and create tables when the database did not exist yet */
-  def openH2Summary(file: File)(implicit ec: ExecutionContext): SummaryDbWrite = {
+  def openH2Summary(file: File)(
+      implicit ec: ExecutionContext): SummaryDbWrite = {
     if (!summaryConnections.contains(file)) {
       val exist = file.exists()
       val s = openSummary(s"jdbc:h2:${file.getAbsolutePath}")
@@ -649,7 +659,8 @@ object SummaryDb {
   }
 
   def openSummary(url: String)(implicit ec: ExecutionContext): SummaryDbWrite = {
-    new SummaryDbWrite(Database.forURL(url, executor = AsyncExecutor("single_thread", 1, 1000)))
+    new SummaryDbWrite(
+      Database.forURL(url, executor = AsyncExecutor("single_thread", 1, 1000)))
   }
 
   def openReadOnlyH2Summary(file: File)(
@@ -660,7 +671,7 @@ object SummaryDb {
   }
 
   def openReadOnlySummary(url: String)(
-    implicit ec: ExecutionContext): SummaryDbReadOnly = {
+      implicit ec: ExecutionContext): SummaryDbReadOnly = {
     new SummaryDbReadOnly(Database.forURL(url))
   }
 }

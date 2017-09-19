@@ -19,7 +19,9 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
     if (!tablesExist()) {
       val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
 
-      val setup = schemas.filter(t => !tables.exists(_.name.name == t.baseTableRow.tableName)).map(_.schema)
+      val setup = schemas
+        .filter(t => !tables.exists(_.name.name == t.baseTableRow.tableName))
+        .map(_.schema)
       if (setup.nonEmpty) {
         val setupFuture = db.run(setup.reduce(_ ++ _).create)
         Await.result(setupFuture, Duration.Inf)
@@ -39,9 +41,20 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
       .filter(_.runName === runName)
     db.run(q.result).map(_.headOption).flatMap {
       case Some(run) =>
-        db.run(q.update(run.copy(outputDir = outputDir, version = version, commitHash = commitHash, creationDate = creationDate)))
+        db.run(
+            q.update(
+              run.copy(outputDir = outputDir,
+                       version = version,
+                       commitHash = commitHash,
+                       creationDate = creationDate)))
           .map(_ => run.id)
-      case _ => createRun(runName, projectId, outputDir, version, commitHash, creationDate)
+      case _ =>
+        createRun(runName,
+                  projectId,
+                  outputDir,
+                  version,
+                  commitHash,
+                  creationDate)
     }
   }
 
