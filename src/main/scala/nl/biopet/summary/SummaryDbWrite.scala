@@ -65,17 +65,9 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                 version: String,
                 commitHash: String,
                 creationDate: Date): Future[Int] = {
-    val id = Await.result(db.run(runs.size.result), Duration.Inf)
-    db.run(
-        runs.forceInsert(
-          Run(id,
-              projectId,
-              runName,
-              outputDir,
-              version,
-              commitHash,
-              creationDate)))
-      .map(_ => id)
+    db.run(runs.map(c => (c.runName, c.projectId, c.outputDir, c.version, c.commitHash, c.creationDate)) +=
+      (runName, projectId, outputDir, version, commitHash, creationDate))
+      .flatMap(_ => getRuns(protectId = Some(projectId), runName = Some(runName)).map(_.head.id))
   }
 
   /** This method will create a new run and return the runId */
@@ -138,8 +130,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** Creates a new pipeline, even if it already exist. This may give a database exeption */
   def forceCreatePipeline(name: String): Future[Int] = {
-    val id = Await.result(db.run(pipelines.size.result), Duration.Inf)
-    db.run(pipelines.forceInsert(Pipeline(id, name))).map(_ => id)
+    db.run(pipelines.map(_.name) += name)
+      .flatMap(_ => getPipelineId(name).map(_.get))
   }
 
   /** Creates a new pipeline if it does not yet exist */
@@ -153,8 +145,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** Creates a new module, even if it already exist. This may give a database exeption */
   def forceCreateModule(name: String, pipelineId: Int): Future[Int] = {
-    val id = Await.result(db.run(modules.size.result), Duration.Inf)
-    db.run(modules.forceInsert(Module(id, name, pipelineId))).map(_ => id)
+    db.run(modules.map(c => (c.name, c.pipelineId)) += (name, pipelineId))
+      .flatMap(_ => getmoduleId(name, pipelineId).map(_.get))
   }
 
   /** Creates a new module if it does not yet exist */
@@ -174,8 +166,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  libId: Option[Int] = None,
                  content: String): Future[Int] = {
     db.run(
-      stats.forceInsert(
-        Stat(runId, pipelineId, moduleId, sampleId, libId, content)))
+      stats +=
+        Stat(runId, pipelineId, moduleId, sampleId, libId, content))
   }
 
   /** This create or update a stat */
@@ -206,8 +198,8 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     libId: Option[Int] = None,
                     content: String): Future[Int] = {
     db.run(
-      settings.forceInsert(
-        Setting(runId, pipelineId, moduleId, sampleId, libId, content)))
+      settings +=
+        Setting(runId, pipelineId, moduleId, sampleId, libId, content))
   }
 
   /** This method creates or update a setting. */
@@ -243,7 +235,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                  link: Boolean = false,
                  size: Long): Future[Int] = {
     db.run(
-      files.forceInsert(
+      files +=
         Schema.File(runId,
                     pipelineId,
                     moduleId,
@@ -253,7 +245,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                     path,
                     md5,
                     link,
-                    size)))
+                    size))
   }
 
   /** Create or update a File */
@@ -310,7 +302,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                        javaMd5: Option[String] = None,
                        jarPath: Option[String] = None): Future[Int] = {
     db.run(
-      executables.forceInsert(
+      executables +=
         Executable(runId,
                    toolName,
                    version,
@@ -318,7 +310,7 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
                    javaVersion,
                    exeMd5,
                    javaMd5,
-                   jarPath)))
+                   jarPath))
   }
 
   /** Create or update a [[Executable]] */

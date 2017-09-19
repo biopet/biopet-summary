@@ -324,8 +324,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(
       db.createOrUpdateSetting(
         runId,
-        0,
-        Some(0),
+        pipelineId,
+        Some(moduleId),
         Some(sampleId),
         Some(libraryId),
         """
@@ -545,9 +545,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        1),
                  Duration.Inf)
     Await.result(db.getFile(runId, pipelineId, NoModule, NoSample, NoLibrary, "key"), Duration.Inf) shouldBe Some(
-      Schema.File(0, 0, None, None, None, "key", "path", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, "key", "path", "md5", link = false, 1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(0, 0, None, None, None, "key", "path", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, "key", "path", "md5", link = false, 1))
     Await.result(db.createOrUpdateFile(runId,
                                        pipelineId,
                                        None,
@@ -560,9 +560,9 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                                        1),
                  Duration.Inf)
     Await.result(db.getFile(runId, pipelineId, NoModule, NoSample, NoLibrary, "key"), Duration.Inf) shouldBe Some(
-      Schema.File(0, 0, None, None, None, "key", "path2", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(0, 0, None, None, None, "key", "path2", "md5", link = false, 1))
+      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1))
 
     // Test join queries
     Await.result(db.createOrUpdateFile(runId,
@@ -579,8 +579,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     Await.result(
       db.getFile(runId, "test_pipeline", "test_module", "test_sample", "test_library", "key"),
       Duration.Inf) shouldBe Some(
-      Schema.File(0,
-                  0,
+      Schema.File(runId, pipelineId,
                   Some(moduleId),
                   Some(sampleId),
                   Some(libraryId),
@@ -590,9 +589,8 @@ class SummaryDbTest extends TestNGSuite with Matchers {
                   link = false,
                   1))
     Await.result(db.getFiles(), Duration.Inf) shouldBe Seq(
-      Schema.File(0, 0, None, None, None, "key", "path2", "md5", link = false, 1),
-      Schema.File(0,
-                  0,
+      Schema.File(runId, pipelineId, None, None, None, "key", "path2", "md5", link = false, 1),
+      Schema.File(runId, pipelineId,
                   Some(moduleId),
                   Some(sampleId),
                   Some(libraryId),
