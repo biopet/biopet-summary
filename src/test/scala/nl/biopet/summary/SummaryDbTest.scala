@@ -153,6 +153,45 @@ class SummaryDbTest extends TestNGSuite with Matchers {
   }
 
   @Test
+  def testReadgroups(): Unit = {
+    val dbFile = File.createTempFile("summary.", ".db")
+    dbFile.deleteOnExit()
+    val db = SummaryDb.openH2Summary(dbFile)
+    db.createTables()
+
+    val date = new Date(System.currentTimeMillis())
+
+    val projectId = Await.result(db.createProject("name"), Duration.Inf)
+    val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
+    val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
+    Await.result(db.getLibraries(), Duration.Inf) shouldBe empty
+    val libraryId = Await.result(db.createLibrary("test_lib", sampleId), Duration.Inf)
+
+    Await.result(db.getReadgroups(), Duration.Inf) shouldBe empty
+    val readgroupId = Await.result(db.createReadgroup("test_rg", libraryId), Duration.Inf)
+    Await.result(db.getReadgroups(), Duration.Inf).size shouldBe 1
+    Await.result(db.createOrUpdateReadgroup("test_rg", libraryId, Some("""{ "key": "value" }""")), Duration.Inf) shouldBe readgroupId
+    Await.result(db.getReadgroups(), Duration.Inf).size shouldBe 1
+
+    Await.result(db.getReadgroups(), Duration.Inf) shouldBe Seq(
+      Schema.Readgroup(readgroupId, "test_rg", libraryId, Some("""{ "key": "value" }""")))
+    Await.result(db.getReadgroupName(readgroupId), Duration.Inf) shouldBe Some("test_rg")
+    Await.result(db.getReadgroupId(libraryId, "test_rg"), Duration.Inf) shouldBe Some(
+      readgroupId)
+    Await.result(db.getReadgroupTags(readgroupId), Duration.Inf) shouldBe Some(Json.parse("""{ "key": "value" }"""))
+
+    val readgroupId2 = Await.result(
+      db.createOrUpdateReadgroup("test_rg2", sampleId, Some("""{"test": "test"}""")),
+      Duration.Inf)
+    Await.result(db.getReadgroupTags(readgroupId2), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
+    Await.result(db.getReadgroups(), Duration.Inf) shouldBe Seq(
+      Schema.Readgroup(readgroupId, "test_rg", sampleId, Some("""{ "key": "value" }""")),
+      Schema.Readgroup(readgroupId2, "test_rg2", sampleId, Some("""{"test": "test"}""")))
+
+    db.close()
+  }
+
+  @Test
   def testPipelines(): Unit = {
     val dbFile = File.createTempFile("summary.", ".db")
     dbFile.deleteOnExit()
