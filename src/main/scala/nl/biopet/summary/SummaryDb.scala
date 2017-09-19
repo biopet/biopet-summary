@@ -39,6 +39,7 @@ trait SummaryDb extends Closeable with Logging {
                           runs,
                           samples,
                           libraries,
+                          readgroups,
                           pipelines,
                           modules,
                           stats,
@@ -132,7 +133,6 @@ trait SummaryDb extends Closeable with Logging {
       List(
         libId.map(lib.id === _),
         sampleId.map(lib.sampleId === _),
-        runId.map(lib.runId === _),
         name.map(lib.name === _) // not a condition as `criteriaRoast` evaluates to `None`
       ).collect({ case Some(criteria) => criteria })
         .reduceLeftOption(_ && _)
@@ -142,11 +142,9 @@ trait SummaryDb extends Closeable with Logging {
   }
 
   /** Return a libraryId for a specific combination */
-  def getLibraryId(runId: Int,
-                   sampleId: Int,
+  def getLibraryId(sampleId: Int,
                    name: String): Future[Option[Int]] = {
-    getLibraries(runId = Some(runId),
-                 sampleId = Some(sampleId),
+    getLibraries(sampleId = Some(sampleId),
                  name = Some(name))
       .map(_.headOption.map(_.id))
   }
@@ -159,6 +157,41 @@ trait SummaryDb extends Closeable with Logging {
   /** Return library tags as a map */
   def getLibraryTags(libId: Int): Future[Option[JsValue]] = {
     db.run(libraries.filter(_.id === libId).map(_.tags).result)
+      .map(_.headOption.flatten.map(Json.parse))
+  }
+
+  /** This returns all readgroups that match the given criteria */
+  def getReadgroups(libId: Option[Int] = None,
+                   name: Option[String] = None,
+                   libraryId: Option[Int] = None): Future[Seq[Readgroup]] = {
+    val q = readgroups.filter { lib =>
+      List(
+        libId.map(lib.id === _),
+        libraryId.map(lib.libraryId === _),
+        name.map(lib.name === _) // not a condition as `criteriaRoast` evaluates to `None`
+      ).collect({ case Some(criteria) => criteria })
+        .reduceLeftOption(_ && _)
+        .getOrElse(true: Rep[Boolean])
+    }
+    db.run(q.result)
+  }
+
+  /** Return a readgroupId for a specific combination */
+  def getReadgroupId(libraryId: Int,
+                   name: String): Future[Option[Int]] = {
+    getReadgroups(libraryId = Some(libraryId),
+      name = Some(name))
+      .map(_.headOption.map(_.id))
+  }
+
+  /** Return a readgroupId for a specific combination */
+  def getReadgroupName(readgroupId: Int): Future[Option[String]] = {
+    getReadgroups(libId = Some(readgroupId)).map(_.headOption.map(_.name))
+  }
+
+  /** Return readgroup tags as a map */
+  def getReadgroupTags(libId: Int): Future[Option[JsValue]] = {
+    db.run(readgroups.filter(_.id === libId).map(_.tags).result)
       .map(_.headOption.flatten.map(Json.parse))
   }
 

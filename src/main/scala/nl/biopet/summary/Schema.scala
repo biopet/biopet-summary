@@ -76,25 +76,41 @@ object Schema {
 
   case class Library(id: Int,
                      name: String,
-                     runId: Int,
                      sampleId: Int,
                      tags: Option[String])
   class Libraries(tag: Tag) extends Table[Library](tag, "Libraries") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
-    def runId = column[Int]("runId")
     def sampleId = column[Int]("sampleId")
     def tags = column[Option[String]]("tags")
 
     def * =
-      (id, name, runId, sampleId, tags) <> (Library.tupled, Library.unapply)
+      (id, name, sampleId, tags) <> (Library.tupled, Library.unapply)
 
-    def run = foreignKey("library_run_fk", runId, runs)(_.id)
     def sample = foreignKey("library_sample_fk", sampleId, samples)(_.id)
 
-    def idx = index("idx_libraries", (runId, sampleId, name), unique = true)
+    def idx = index("idx_libraries", (sampleId, name), unique = true)
   }
   val libraries = TableQuery[Libraries]
+
+  case class Readgroup(id: Int,
+                     name: String,
+                     libraryId: Int,
+                     tags: Option[String])
+  class Readgroups(tag: Tag) extends Table[Readgroup](tag, "Readgroups") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def name = column[String]("name")
+    def libraryId = column[Int]("libraryId")
+    def tags = column[Option[String]]("tags")
+
+    def * =
+      (id, name, libraryId, tags) <> (Readgroup.tupled, Readgroup.unapply)
+
+    def library = foreignKey("readgroup_library_fk", libraryId, libraries)(_.id)
+
+    def idx = index("idx_readgroups", (libraryId, name), unique = true)
+  }
+  val readgroups = TableQuery[Readgroups]
 
   case class Pipeline(id: Int, name: String)
   class Pipelines(tag: Tag) extends Table[Pipeline](tag, "PipelineNames") {

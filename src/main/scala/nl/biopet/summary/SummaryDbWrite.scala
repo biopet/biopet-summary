@@ -102,19 +102,17 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
 
   /** This will create a new library */
   def createLibrary(name: String,
-                    runId: Int,
                     sampleId: Int,
                     tags: Option[String] = None): Future[Int] = {
     db.run(libraries
-        .map(s => (s.name, s.runId, s.sampleId, s.tags)) += (name, runId, sampleId, tags))
-      .flatMap(_ => getLibraryId(runId, sampleId, name).map(_.head))
+        .map(s => (s.name, s.sampleId, s.tags)) += (name, sampleId, tags))
+      .flatMap(_ => getLibraryId(sampleId, name).map(_.head))
   }
 
   def createOrUpdateLibrary(name: String,
-                            runId: Int,
                             sampleId: Int,
                             tags: Option[String] = None): Future[Int] = {
-    getLibraryId(runId, sampleId, name).flatMap {
+    getLibraryId(sampleId, name).flatMap {
       case Some(id: Int) =>
         db.run(
             libraries
@@ -124,7 +122,33 @@ class SummaryDbWrite(val db: Database)(implicit val ec: ExecutionContext)
               .map(_.tags)
               .update(tags))
           .map(_ => id)
-      case _ => createLibrary(name, runId, sampleId, tags)
+      case _ => createLibrary(name, sampleId, tags)
+    }
+  }
+
+  /** This will create a new readgroup */
+  def createReadgroup(name: String,
+                      libraryId: Int,
+                    tags: Option[String] = None): Future[Int] = {
+    db.run(readgroups
+      .map(s => (s.name, s.libraryId, s.tags)) += (name, libraryId, tags))
+      .flatMap(_ => getReadgroupId(libraryId, name).map(_.head))
+  }
+
+  def createOrUpdateReadgroup(name: String,
+                              libraryId: Int,
+                            tags: Option[String] = None): Future[Int] = {
+    getReadgroupId(libraryId, name).flatMap {
+      case Some(id: Int) =>
+        db.run(
+          readgroups
+            .filter(_.name === name)
+            .filter(_.id === id)
+            .filter(_.libraryId === libraryId)
+            .map(_.tags)
+            .update(tags))
+          .map(_ => id)
+      case _ => createReadgroup(name, libraryId, tags)
     }
   }
 

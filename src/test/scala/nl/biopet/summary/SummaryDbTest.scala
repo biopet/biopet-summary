@@ -131,23 +131,23 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val runId = Await.result(db.createRun("name", projectId, "dir", "version", "hash", date), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
     Await.result(db.getLibraries(), Duration.Inf) shouldBe empty
-    val libraryId = Await.result(db.createLibrary("test_lib", runId, sampleId), Duration.Inf)
-    Await.result(db.createOrUpdateLibrary("test_lib", runId, sampleId), Duration.Inf) shouldBe libraryId
+    val libraryId = Await.result(db.createLibrary("test_lib", sampleId), Duration.Inf)
+    Await.result(db.createOrUpdateLibrary("test_lib", sampleId), Duration.Inf) shouldBe libraryId
 
     Await.result(db.getLibraries(), Duration.Inf) shouldBe Seq(
-      Schema.Library(libraryId, "test_lib", runId, sampleId, None))
+      Schema.Library(libraryId, "test_lib", sampleId, None))
     Await.result(db.getLibraryName(libraryId), Duration.Inf) shouldBe Some("test_lib")
-    Await.result(db.getLibraryId(runId, sampleId, "test_lib"), Duration.Inf) shouldBe Some(
+    Await.result(db.getLibraryId(sampleId, "test_lib"), Duration.Inf) shouldBe Some(
       libraryId)
     Await.result(db.getLibraryTags(sampleId), Duration.Inf) shouldBe None
 
     val libraryId2 = Await.result(
-      db.createOrUpdateLibrary("test_lib2", runId, sampleId, Some("""{"test": "test"}""")),
+      db.createOrUpdateLibrary("test_lib2", sampleId, Some("""{"test": "test"}""")),
       Duration.Inf)
     Await.result(db.getLibraryTags(libraryId2), Duration.Inf) shouldBe Some(Json.toJson(Map("test" -> "test")))
     Await.result(db.getLibraries(), Duration.Inf) shouldBe Seq(
-      Schema.Library(sampleId, "test_lib", runId, sampleId, None),
-      Schema.Library(libraryId2, "test_lib2", runId, sampleId, Some("""{"test": "test"}""")))
+      Schema.Library(sampleId, "test_lib", sampleId, None),
+      Schema.Library(libraryId2, "test_lib2", sampleId, Some("""{"test": "test"}""")))
 
     db.close()
   }
@@ -209,7 +209,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("library", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("library", sampleId), Duration.Inf)
 
     Await.result(db.createOrUpdateSetting(runId, pipelineId, Some(moduleId), Some(sampleId), Some(libraryId), """{"content": "test" }"""),
                  Duration.Inf)
@@ -239,7 +239,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("sample", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateSetting(
@@ -319,7 +319,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("sample", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateSetting(
@@ -360,7 +360,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("test_pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("test_library", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("test_library", sampleId), Duration.Inf)
 
     Await.result(db.getStatsSize(), Duration.Inf) shouldBe 0
 
@@ -406,7 +406,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("sample", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateStat(
@@ -490,7 +490,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("sample", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("sample", sampleId), Duration.Inf)
 
     Await.result(
       db.createOrUpdateStat(
@@ -531,7 +531,7 @@ class SummaryDbTest extends TestNGSuite with Matchers {
     val pipelineId = Await.result(db.createPipeline("test_pipeline"), Duration.Inf)
     val moduleId = Await.result(db.createModule("test_module", pipelineId), Duration.Inf)
     val sampleId = Await.result(db.createSample("test_sample", runId), Duration.Inf)
-    val libraryId = Await.result(db.createLibrary("test_library", runId, sampleId), Duration.Inf)
+    val libraryId = Await.result(db.createLibrary("test_library", sampleId), Duration.Inf)
 
     Await.result(db.createOrUpdateFile(runId,
                                        pipelineId,
