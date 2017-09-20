@@ -93,6 +93,7 @@ trait SummaryDb extends Closeable with Logging {
 
   /** This will return all samples that match given criteria */
   def getSamples(sampleId: Option[Int] = None,
+                 projectId: Option[Int] = None,
                  runId: Option[Int] = None,
                  name: Option[String] = None): Future[Seq[Sample]] = {
     val q = samples.filter { sample =>
@@ -104,7 +105,10 @@ trait SummaryDb extends Closeable with Logging {
         .reduceLeftOption(_ && _)
         .getOrElse(true: Rep[Boolean])
     }
-    db.run(q.result)
+    projectId match {
+      case Some(pId) => db.run(q.zip(Schema.runs).filter(_._2.projectId === pId).map(_._1).result)
+      case _ => db.run(q.result)
+    }
   }
 
   /** Return samplId of a specific runId + sampleName */
