@@ -10,6 +10,7 @@ node('local') {
 
         stage('Checkout') {
             checkout scm
+            sh 'git submodule update --init --recursive'
         }
         stage('Build') {
             sh "${tool name: 'sbt 0.13.15', type: 'org.jvnet.hudson.plugins.SbtPluginBuilder$SbtInstallation'}/bin/sbt clean compile"
