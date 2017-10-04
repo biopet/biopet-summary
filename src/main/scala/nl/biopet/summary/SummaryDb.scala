@@ -106,7 +106,9 @@ trait SummaryDb extends Closeable with Logging {
         .getOrElse(true: Rep[Boolean])
     }
     projectId match {
-      case Some(pId) => db.run(q.zip(Schema.runs).filter(_._2.projectId === pId).map(_._1).result)
+      case Some(pId) =>
+        db.run(
+          q.zip(Schema.runs).filter(_._2.projectId === pId).map(_._1).result)
       case _ => db.run(q.result)
     }
   }
